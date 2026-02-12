@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Enrollment;
+use App\Models\Grade;
+use App\Models\Section;
+use App\Models\Student;
+use App\Models\User;
+use App\Observers\AuditObserver;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +30,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->registerObservers();
+    }
+
+    /**
+     * Register model observers for audit logging.
+     */
+    protected function registerObservers(): void
+    {
+        Student::observe(AuditObserver::class);
+        Enrollment::observe(AuditObserver::class);
+        Grade::observe(AuditObserver::class);
+        Section::observe(AuditObserver::class);
+        User::observe(AuditObserver::class);
     }
 
     /**

@@ -2,7 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Helpers\NavigationHelper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -42,6 +44,32 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'navigation' => fn () => $request->user()
+                ? NavigationHelper::getNavigation($request->user())
+                : [],
+            'activeSemester' => fn () => $this->getActiveSemester(),
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+            ],
         ];
+    }
+
+    /**
+     * Get the currently active semester, or null if the table doesn't exist yet.
+     */
+    private function getActiveSemester(): mixed
+    {
+        try {
+            if (! Schema::hasTable('semesters')) {
+                return null;
+            }
+
+            return \App\Models\Semester::where('is_active', true)
+                ->with('schoolYear')
+                ->first();
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }

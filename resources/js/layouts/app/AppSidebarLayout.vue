@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FlashMessage from '@/components/App/FlashMessage.vue';
 import AppContent from '@/components/AppContent.vue';
 import AppShell from '@/components/AppShell.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
@@ -19,6 +20,7 @@ withDefaults(defineProps<Props>(), {
         <AppSidebar />
         <AppContent variant="sidebar" class="overflow-x-hidden">
             <AppSidebarHeader :breadcrumbs="breadcrumbs" />
+            <FlashMessage />
             <slot />
         </AppContent>
     </AppShell>

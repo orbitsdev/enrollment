@@ -1,42 +1,61 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
-import NavFooter from '@/components/NavFooter.vue';
-import NavMain from '@/components/NavMain.vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import {
+    BarChart3,
+    BookOpen,
+    ClipboardList,
+    FileSpreadsheet,
+    GraduationCap,
+    LayoutGrid,
+    LayoutList,
+    Settings,
+    Upload,
+    User,
+    Users,
+} from 'lucide-vue-next';
+import type { Component } from 'vue';
+import { computed } from 'vue';
 import NavUser from '@/components/NavUser.vue';
 import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
+    SidebarGroup,
+    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { dashboard } from '@/routes';
-import { type NavItem } from '@/types';
+import type { NavigationGroup } from '@/types';
 import AppLogo from './AppLogo.vue';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-];
+const page = usePage();
+const { isCurrentUrl } = useCurrentUrl();
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Github Repo',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
-    },
-];
+const iconMap: Record<string, Component> = {
+    LayoutGrid,
+    Users,
+    Settings,
+    BookOpen,
+    GraduationCap,
+    LayoutList,
+    ClipboardList,
+    FileSpreadsheet,
+    BarChart3,
+    Upload,
+    User,
+};
+
+function resolveIcon(iconName: string): Component {
+    return iconMap[iconName] ?? LayoutGrid;
+}
+
+const navigationGroups = computed<NavigationGroup[]>(
+    () => (page.props.navigation as NavigationGroup[]) ?? [],
+);
 </script>
 
 <template>
@@ -54,11 +73,33 @@ const footerNavItems: NavItem[] = [
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems" />
+            <SidebarGroup
+                v-for="group in navigationGroups"
+                :key="group.label"
+                class="px-2 py-0"
+            >
+                <SidebarGroupLabel>{{ group.label }}</SidebarGroupLabel>
+                <SidebarMenu>
+                    <SidebarMenuItem
+                        v-for="item in group.items"
+                        :key="item.href"
+                    >
+                        <SidebarMenuButton
+                            as-child
+                            :is-active="isCurrentUrl(item.href)"
+                            :tooltip="item.title"
+                        >
+                            <Link :href="item.href" prefetch>
+                                <component :is="resolveIcon(item.icon)" />
+                                <span>{{ item.title }}</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarGroup>
         </SidebarContent>
 
         <SidebarFooter>
-            <NavFooter :items="footerNavItems" />
             <NavUser />
         </SidebarFooter>
     </Sidebar>

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"D:/2026/WEB/enrollment\" log --oneline)",
+      "Bash(composer require:*)",
+      "Bash(php artisan vendor:publish:*)",
+      "Bash(npm i:*)",
+      "Bash(npx shadcn-vue@latest add:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(php artisan:*)"
+    ]
+  }
+}
