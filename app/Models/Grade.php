@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Enums\GradeRemarks;
+use App\Traits\ModelRelations\GradeRelations;
+use App\Traits\ModelScope\GradeScopes;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Grade extends Model
 {
+    use GradeRelations, GradeScopes;
+
     protected $fillable = [
         'enrollment_id',
         'subject_id',
@@ -28,29 +31,5 @@ class Grade extends Model
             'remarks' => GradeRemarks::class,
             'is_locked' => 'boolean',
         ];
-    }
-
-    /**
-     * Get the enrollment for this grade.
-     */
-    public function enrollment(): BelongsTo
-    {
-        return $this->belongsTo(Enrollment::class);
-    }
-
-    /**
-     * Get the subject for this grade.
-     */
-    public function subject(): BelongsTo
-    {
-        return $this->belongsTo(Subject::class);
-    }
-
-    /**
-     * Get the user who encoded this grade.
-     */
-    public function encoder(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'encoded_by');
     }
 }

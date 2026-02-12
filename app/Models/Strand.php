@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Traits\ModelRelations\StrandRelations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
 
 class Strand extends Model
 {
+    use StrandRelations;
+
     protected $fillable = [
         'track_id',
         'name',
@@ -28,24 +29,6 @@ class Strand extends Model
             'is_active' => 'boolean',
             'sort_order' => 'integer',
         ];
-    }
-
-    /**
-     * Get the track that owns the strand.
-     */
-    public function track(): BelongsTo
-    {
-        return $this->belongsTo(Track::class);
-    }
-
-    /**
-     * Get the subjects for the strand.
-     */
-    public function subjects(): BelongsToMany
-    {
-        return $this->belongsToMany(Subject::class, 'subject_strand')
-            ->withPivot('grade_level', 'semester', 'sort_order')
-            ->withTimestamps();
     }
 
     /**

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\ModelRelations\SchoolYearRelations;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class SchoolYear extends Model
 {
+    use SchoolYearRelations;
+
     protected $fillable = [
         'name',
         'is_active',
@@ -18,14 +20,6 @@ class SchoolYear extends Model
         return [
             'is_active' => 'boolean',
         ];
-    }
-
-    /**
-     * Get the semesters for the school year.
-     */
-    public function semesters(): HasMany
-    {
-        return $this->hasMany(Semester::class);
     }
 
     /**

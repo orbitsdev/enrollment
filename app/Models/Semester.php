@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Traits\ModelRelations\SemesterRelations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
 
 class Semester extends Model
 {
+    use SemesterRelations;
+
     protected $fillable = [
         'school_year_id',
         'number',
@@ -28,14 +30,6 @@ class Semester extends Model
             'is_active' => 'boolean',
             'enrollment_open' => 'boolean',
         ];
-    }
-
-    /**
-     * Get the school year that owns the semester.
-     */
-    public function schoolYear(): BelongsTo
-    {
-        return $this->belongsTo(SchoolYear::class);
     }
 
     /**

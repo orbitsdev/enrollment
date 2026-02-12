@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\ModelRelations\TrackRelations;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class Track extends Model
 {
+    use TrackRelations;
+
     protected $fillable = [
         'name',
         'code',
@@ -21,14 +23,6 @@ class Track extends Model
             'is_active' => 'boolean',
             'sort_order' => 'integer',
         ];
-    }
-
-    /**
-     * Get the strands for the track.
-     */
-    public function strands(): HasMany
-    {
-        return $this->hasMany(Strand::class);
     }
 
     /**

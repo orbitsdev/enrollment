@@ -3,14 +3,14 @@
 namespace App\Models;
 
 use App\Enums\SubjectType;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\ModelRelations\SubjectRelations;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class Subject extends Model
 {
+    use SubjectRelations;
+
     protected $fillable = [
         'code',
         'name',
@@ -27,32 +27,6 @@ class Subject extends Model
             'hours' => 'integer',
             'is_active' => 'boolean',
         ];
-    }
-
-    /**
-     * Get the prerequisite subject.
-     */
-    public function prerequisite(): BelongsTo
-    {
-        return $this->belongsTo(Subject::class, 'prerequisite_id');
-    }
-
-    /**
-     * Get the subjects that depend on this subject.
-     */
-    public function dependents(): HasMany
-    {
-        return $this->hasMany(Subject::class, 'prerequisite_id');
-    }
-
-    /**
-     * Get the strands for the subject.
-     */
-    public function strands(): BelongsToMany
-    {
-        return $this->belongsToMany(Strand::class, 'subject_strand')
-            ->withPivot('grade_level', 'semester', 'sort_order')
-            ->withTimestamps();
     }
 
     /**
