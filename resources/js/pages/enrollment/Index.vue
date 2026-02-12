@@ -187,7 +187,7 @@ function formatDate(dateStr: string | null): string {
                     </TableCell>
                     <TableCell class="text-right">
                         <Button variant="ghost" size="icon-sm" as-child>
-                            <Link :href="`/enrollment/${row.id}`">
+                            <Link :href="`/enrollment/${row.id}`" prefetch>
                                 <Eye class="size-4" />
                             </Link>
                         </Button>

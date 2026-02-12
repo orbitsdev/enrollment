@@ -19,6 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useUnsavedChangesGuard } from '@/composables/useUnsavedChangesGuard';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Semester, Strand, User } from '@/types';
 
@@ -42,6 +43,8 @@ const form = useForm({
     max_capacity: 40,
     adviser_id: '',
 });
+
+useUnsavedChangesGuard(form);
 
 function submit() {
     form.post('/sections', {

@@ -20,6 +20,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useUnsavedChangesGuard } from '@/composables/useUnsavedChangesGuard';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Student } from '@/types';
 
@@ -49,6 +50,8 @@ const form = useForm({
     previous_school: props.student.previous_school ?? '',
     status: props.student.status,
 });
+
+useUnsavedChangesGuard(form);
 
 function submit() {
     form.put(`/students/${props.student.id}`, {

@@ -12,6 +12,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useUnsavedChangesGuard } from '@/composables/useUnsavedChangesGuard';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 
@@ -32,6 +33,8 @@ const form = useForm({
     password_confirmation: '',
     role: '',
 });
+
+useUnsavedChangesGuard(form);
 
 function submit() {
     form.post('/users', {

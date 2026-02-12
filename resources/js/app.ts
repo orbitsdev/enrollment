@@ -1,5 +1,4 @@
 import { createInertiaApp } from '@inertiajs/vue3';
-import { modalPlugin } from '@inertiaui/modal-vue';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
@@ -18,7 +17,6 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
-            .use(modalPlugin)
             .mount(el);
     },
     progress: {

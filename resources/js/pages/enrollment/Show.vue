@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { Printer } from 'lucide-vue-next';
 import { ref } from 'vue';
 import ConfirmDialog from '@/components/App/ConfirmDialog.vue';
@@ -56,7 +56,7 @@ const studentName = props.enrollment.student.full_name
 // Status update
 const showConfirm = ref(false);
 const confirmAction = ref<'enrolled' | 'dropped' | 'transferred'>('enrolled');
-const statusProcessing = ref(false);
+const statusForm = useForm({ status: '' as string });
 
 const actionLabels: Record<string, { title: string; description: string; variant: 'default' | 'destructive' }> = {
     enrolled: {
@@ -82,18 +82,13 @@ function promptStatusChange(action: 'enrolled' | 'dropped' | 'transferred') {
 }
 
 function executeStatusChange() {
-    statusProcessing.value = true;
-    router.put(
-        `/enrollment/${props.enrollment.id}/status`,
-        { status: confirmAction.value },
-        {
-            preserveScroll: true,
-            onFinish: () => {
-                statusProcessing.value = false;
-                showConfirm.value = false;
-            },
+    statusForm.status = confirmAction.value;
+    statusForm.put(`/enrollment/${props.enrollment.id}/status`, {
+        preserveScroll: true,
+        onFinish: () => {
+            showConfirm.value = false;
         },
-    );
+    });
 }
 
 function getGradeForSubject(subjectId: number): Grade | undefined {
@@ -315,7 +310,7 @@ function formatDate(dateStr: string | null): string {
             :description="actionLabels[confirmAction]?.description ?? ''"
             :confirm-text="actionLabels[confirmAction]?.title ?? 'Confirm'"
             :variant="actionLabels[confirmAction]?.variant ?? 'default'"
-            :processing="statusProcessing"
+            :processing="statusForm.processing"
             @confirm="executeStatusChange"
             @cancel="showConfirm = false"
         />

@@ -3,6 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import { AlertTriangle } from 'lucide-vue-next';
 import { ref } from 'vue';
 import PageHeader from '@/components/App/PageHeader.vue';
+import { useUnsavedChangesGuard } from '@/composables/useUnsavedChangesGuard';
 import InputError from '@/components/InputError.vue';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -47,6 +48,8 @@ const form = useForm({
     guardian_relationship: '',
     previous_school: '',
 });
+
+useUnsavedChangesGuard(form);
 
 const duplicates = ref<Array<{ id: number; lrn: string; full_name: string }>>([]);
 const checkingDuplicates = ref(false);

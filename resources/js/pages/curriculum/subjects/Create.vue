@@ -22,6 +22,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useUnsavedChangesGuard } from '@/composables/useUnsavedChangesGuard';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Strand, Subject } from '@/types';
 
@@ -71,6 +72,8 @@ function toggleStrandMapping(strandId: number, gradeLevel: number, semester: num
         form.strands.push({ strand_id: strandId, grade_level: gradeLevel, semester });
     }
 }
+
+useUnsavedChangesGuard(form);
 
 function submit() {
     form.post('/curriculum/subjects', {

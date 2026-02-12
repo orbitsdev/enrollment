@@ -176,7 +176,7 @@ function onStrandChange(value: string) {
                     </TableCell>
                     <TableCell class="text-right">
                         <Button variant="ghost" size="sm" as-child>
-                            <Link :href="`/curriculum/subjects/${row.id}/edit`">
+                            <Link :href="`/curriculum/subjects/${row.id}/edit`" prefetch>
                                 Edit
                             </Link>
                         </Button>

@@ -92,6 +92,7 @@ function sectionOverallCompletion(section: SectionWithGradeInfo): number {
                                 <div class="flex-1 min-w-0">
                                     <Link
                                         :href="`/grades/${section.id}/${subject.id}`"
+                                        prefetch
                                         class="text-sm font-medium hover:underline truncate block"
                                     >
                                         {{ subject.code }}
@@ -120,7 +121,7 @@ function sectionOverallCompletion(section: SectionWithGradeInfo): number {
                                         size="sm"
                                         as-child
                                     >
-                                        <Link :href="`/grades/${section.id}/${subject.id}`">
+                                        <Link :href="`/grades/${section.id}/${subject.id}`" prefetch>
                                             <BookOpen class="size-4" />
                                         </Link>
                                     </Button>

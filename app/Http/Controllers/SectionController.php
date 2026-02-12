@@ -78,11 +78,11 @@ class SectionController extends Controller
             'strand.track',
             'semester.schoolYear',
             'adviser',
-            'enrollments.student',
         ]);
 
         return Inertia::render('sections/Show', [
             'section' => $section,
+            'enrollments' => Inertia::optional(fn () => $section->enrollments()->with('student')->get()),
         ]);
     }
 

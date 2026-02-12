@@ -13,6 +13,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { useUnsavedChangesGuard } from '@/composables/useUnsavedChangesGuard';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, User } from '@/types';
 
@@ -37,6 +38,8 @@ const form = useForm({
     role: props.user.role,
     is_active: props.user.is_active,
 });
+
+useUnsavedChangesGuard(form);
 
 function submit() {
     form.put(`/users/${props.user.id}`, {

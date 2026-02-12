@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Lock, Loader2, Save, Unlock } from 'lucide-vue-next';
+import { useUnsavedChangesGuard } from '@/composables/useUnsavedChangesGuard';
 import { computed, ref } from 'vue';
 import ConfirmDialog from '@/components/App/ConfirmDialog.vue';
 import PageHeader from '@/components/App/PageHeader.vue';
@@ -57,6 +58,8 @@ const form = useForm({
     })),
 });
 
+useUnsavedChangesGuard(form);
+
 // Computed final grades for each entry (client-side)
 const computedGrades = computed(() => {
     return form.grades.map((entry) => {
@@ -106,36 +109,24 @@ function saveGrades() {
 // Lock/Unlock grades
 const showLockConfirm = ref(false);
 const showUnlockConfirm = ref(false);
-const lockProcessing = ref(false);
+const lockForm = useForm({});
 
 function lockGrades() {
-    lockProcessing.value = true;
-    router.put(
-        `/grades/${props.section.id}/${props.subject.id}/lock`,
-        {},
-        {
-            preserveScroll: true,
-            onFinish: () => {
-                lockProcessing.value = false;
-                showLockConfirm.value = false;
-            },
+    lockForm.put(`/grades/${props.section.id}/${props.subject.id}/lock`, {
+        preserveScroll: true,
+        onFinish: () => {
+            showLockConfirm.value = false;
         },
-    );
+    });
 }
 
 function unlockGrades() {
-    lockProcessing.value = true;
-    router.put(
-        `/grades/${props.section.id}/${props.subject.id}/unlock`,
-        {},
-        {
-            preserveScroll: true,
-            onFinish: () => {
-                lockProcessing.value = false;
-                showUnlockConfirm.value = false;
-            },
+    lockForm.put(`/grades/${props.section.id}/${props.subject.id}/unlock`, {
+        preserveScroll: true,
+        onFinish: () => {
+            showUnlockConfirm.value = false;
         },
-    );
+    });
 }
 
 // Stats
@@ -354,7 +345,7 @@ const failingCount = computed(() =>
             description="Are you sure you want to lock all grades for this subject? Once locked, grades cannot be modified without admin approval."
             confirm-text="Lock Grades"
             variant="default"
-            :processing="lockProcessing"
+            :processing="lockForm.processing"
             @confirm="lockGrades"
             @cancel="showLockConfirm = false"
         />
@@ -366,7 +357,7 @@ const failingCount = computed(() =>
             description="Are you sure you want to unlock grades? This action is typically restricted to administrators."
             confirm-text="Unlock Grades"
             variant="destructive"
-            :processing="lockProcessing"
+            :processing="lockForm.processing"
             @confirm="unlockGrades"
             @cancel="showUnlockConfirm = false"
         />

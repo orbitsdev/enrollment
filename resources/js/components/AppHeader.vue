@@ -108,6 +108,7 @@ const rightNavItems: NavItem[] = [
                                         v-for="item in mainNavItems"
                                         :key="item.title"
                                         :href="item.href"
+                                        prefetch
                                         class="flex items-center gap-x-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent"
                                         :class="
                                             whenCurrentUrl(
@@ -171,6 +172,7 @@ const rightNavItems: NavItem[] = [
                                         'h-9 cursor-pointer px-3',
                                     ]"
                                     :href="item.href"
+                                    prefetch
                                 >
                                     <component
                                         v-if="item.icon"

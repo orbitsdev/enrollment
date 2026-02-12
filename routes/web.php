@@ -42,7 +42,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('semesters/{semester}/activate', [SchoolYearController::class, 'activateSemester'])->name('semesters.activate');
 
     // Unlock grades (admin only)
-    Route::post('grades/unlock', [GradeController::class, 'unlock'])->name('grades.unlock');
+    Route::put('grades/{section}/{subject}/unlock', [GradeController::class, 'unlock'])->name('grades.unlock');
 });
 
 // Admin & Registrar
@@ -95,8 +95,8 @@ Route::middleware(['auth', 'role:admin|registrar'])->group(function () {
 Route::middleware(['auth', 'role:admin|registrar|teacher'])->group(function () {
     Route::get('grades', [GradeController::class, 'index'])->name('grades.index');
     Route::get('grades/{section}/{subject}', [GradeController::class, 'entry'])->name('grades.entry');
-    Route::post('grades', [GradeController::class, 'store'])->name('grades.store');
-    Route::post('grades/lock', [GradeController::class, 'lock'])->name('grades.lock');
+    Route::put('grades/{section}/{subject}', [GradeController::class, 'store'])->name('grades.store');
+    Route::put('grades/{section}/{subject}/lock', [GradeController::class, 'lock'])->name('grades.lock');
 });
 
 // API routes (auth required)

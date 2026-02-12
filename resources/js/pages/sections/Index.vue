@@ -180,13 +180,13 @@ function onGradeLevelChange(value: string) {
                     </CardContent>
                     <CardFooter class="flex gap-2 border-t pt-4">
                         <Button variant="outline" size="sm" class="flex-1" as-child>
-                            <Link :href="`/sections/${section.id}`">
+                            <Link :href="`/sections/${section.id}`" prefetch>
                                 <Eye class="size-4" />
                                 View Roster
                             </Link>
                         </Button>
                         <Button variant="outline" size="sm" class="flex-1" as-child>
-                            <Link :href="`/sections/${section.id}/edit`">
+                            <Link :href="`/sections/${section.id}/edit`" prefetch>
                                 <Pencil class="size-4" />
                                 Edit
                             </Link>

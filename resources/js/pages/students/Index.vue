@@ -121,12 +121,12 @@ function onStatusChange(value: string) {
                     <TableCell class="text-right">
                         <div class="flex items-center justify-end gap-1">
                             <Button variant="ghost" size="icon-sm" as-child>
-                                <Link :href="`/students/${row.id}`">
+                                <Link :href="`/students/${row.id}`" prefetch>
                                     <Eye class="size-4" />
                                 </Link>
                             </Button>
                             <Button variant="ghost" size="icon-sm" as-child>
-                                <Link :href="`/students/${row.id}/edit`">
+                                <Link :href="`/students/${row.id}/edit`" prefetch>
                                     <Pencil class="size-4" />
                                 </Link>
                             </Button>

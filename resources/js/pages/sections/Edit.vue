@@ -19,6 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useUnsavedChangesGuard } from '@/composables/useUnsavedChangesGuard';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Section, Semester, Strand, User } from '@/types';
 
@@ -43,6 +44,8 @@ const form = useForm({
     max_capacity: props.section.max_capacity,
     adviser_id: props.section.adviser_id ? String(props.section.adviser_id) : '',
 });
+
+useUnsavedChangesGuard(form);
 
 function submit() {
     form.put(`/sections/${props.section.id}`, {

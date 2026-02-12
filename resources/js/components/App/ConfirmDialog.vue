@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 withDefaults(
     defineProps<{
@@ -36,28 +38,36 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <Dialog :open="open" @update:open="(val: boolean) => !val && emit('cancel')">
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>{{ title }}</DialogTitle>
-                <DialogDescription>{{ description }}</DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-                <Button
-                    variant="outline"
-                    :disabled="processing"
-                    @click="emit('cancel')"
+    <AlertDialog :open="open" @update:open="(val: boolean) => !val && emit('cancel')">
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>{{ title }}</AlertDialogTitle>
+                <AlertDialogDescription>{{ description }}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel
+                    as-child
                 >
-                    {{ cancelText }}
-                </Button>
-                <Button
-                    :variant="variant"
-                    :disabled="processing"
-                    @click="emit('confirm')"
+                    <Button
+                        variant="outline"
+                        :disabled="processing"
+                        @click="emit('cancel')"
+                    >
+                        {{ cancelText }}
+                    </Button>
+                </AlertDialogCancel>
+                <AlertDialogAction
+                    as-child
                 >
-                    {{ confirmText }}
-                </Button>
-            </DialogFooter>
-        </DialogContent>
-    </Dialog>
+                    <Button
+                        :variant="variant"
+                        :disabled="processing"
+                        @click="emit('confirm')"
+                    >
+                        {{ confirmText }}
+                    </Button>
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
 </template>

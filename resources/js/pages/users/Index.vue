@@ -150,7 +150,7 @@ function executeToggle() {
                     <TableCell class="text-right">
                         <div class="flex items-center justify-end gap-2">
                             <Button variant="ghost" size="sm" as-child>
-                                <Link :href="`/users/${row.id}/edit`">
+                                <Link :href="`/users/${row.id}/edit`" prefetch>
                                     Edit
                                 </Link>
                             </Button>
