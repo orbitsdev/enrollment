@@ -54,6 +54,8 @@ Route::middleware(['auth', 'role:admin|registrar'])->group(function () {
     Route::put('curriculum/tracks/{track}', [CurriculumController::class, 'updateTrack'])->name('curriculum.tracks.update');
     Route::post('curriculum/strands', [CurriculumController::class, 'storeStrand'])->name('curriculum.strands.store');
     Route::put('curriculum/strands/{strand}', [CurriculumController::class, 'updateStrand'])->name('curriculum.strands.update');
+    Route::put('curriculum/tracks/{track}/toggle-active', [CurriculumController::class, 'toggleTrackActive'])->name('curriculum.tracks.toggle-active');
+    Route::put('curriculum/strands/{strand}/toggle-active', [CurriculumController::class, 'toggleStrandActive'])->name('curriculum.strands.toggle-active');
     Route::resource('subjects', SubjectController::class);
 
     // Students

@@ -21,6 +21,10 @@ class SectionController extends Controller
         $query = Section::with(['strand.track', 'semester.schoolYear', 'adviser'])
             ->withEnrolledCount();
 
+        if ($search = request('search')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
         if ($semesterId = request('semester_id')) {
             $query->bySemester((int) $semesterId);
         }
@@ -38,12 +42,14 @@ class SectionController extends Controller
         return Inertia::render('sections/Index', [
             'sections' => $sections,
             'filters' => [
+                'search' => request('search', ''),
                 'semester_id' => request('semester_id', ''),
                 'strand_id' => request('strand_id', ''),
                 'grade_level' => request('grade_level', ''),
             ],
             'semesters' => fn () => Semester::with('schoolYear')->latest()->get(),
             'strands' => fn () => Strand::with('track')->active()->orderBy('sort_order')->get(),
+            'teachers' => fn () => User::role('teacher')->where('is_active', true)->orderBy('name')->get(['id', 'name']),
         ]);
     }
 

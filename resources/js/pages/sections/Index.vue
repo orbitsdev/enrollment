@@ -4,6 +4,8 @@ import { Eye, Pencil, Plus, Users } from 'lucide-vue-next';
 import { ref } from 'vue';
 import CapacityBar from '@/components/App/CapacityBar.vue';
 import PageHeader from '@/components/App/PageHeader.vue';
+import SearchInput from '@/components/App/SearchInput.vue';
+import SectionFormDialog from '@/components/App/SectionFormDialog.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,7 +23,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { BreadcrumbItem, Section, Semester, Strand } from '@/types';
+import type { BreadcrumbItem, Section, Semester, Strand, User } from '@/types';
 
 type SectionWithRelations = Section & {
     strand?: Strand;
@@ -32,9 +34,10 @@ type SectionWithRelations = Section & {
 
 const props = defineProps<{
     sections: SectionWithRelations[];
-    filters: { semester_id: string; strand_id: string; grade_level: string };
+    filters: { search: string; semester_id: string; strand_id: string; grade_level: string };
     semesters: Semester[];
     strands: Strand[];
+    teachers: User[];
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -42,9 +45,24 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Sections' },
 ];
 
+const search = ref(props.filters.search ?? '');
 const semesterFilter = ref(props.filters.semester_id ?? '');
 const strandFilter = ref(props.filters.strand_id ?? '');
 const gradeLevelFilter = ref(props.filters.grade_level ?? '');
+
+// Dialog state
+const dialogOpen = ref(false);
+const editingSection = ref<SectionWithRelations | null>(null);
+
+function openCreateDialog() {
+    editingSection.value = null;
+    dialogOpen.value = true;
+}
+
+function openEditDialog(section: SectionWithRelations) {
+    editingSection.value = section;
+    dialogOpen.value = true;
+}
 
 function applyFilters() {
     router.get(
@@ -88,17 +106,20 @@ function onGradeLevelChange(value: string) {
                 description="Manage class sections and rosters."
             >
                 <template #actions>
-                    <Button as-child>
-                        <Link href="/sections/create">
-                            <Plus class="size-4" />
-                            Add Section
-                        </Link>
+                    <Button @click="openCreateDialog">
+                        <Plus class="size-4" />
+                        Add Section
                     </Button>
                 </template>
             </PageHeader>
 
             <!-- Filters -->
             <div class="flex flex-wrap items-center gap-4">
+                <SearchInput
+                    v-model="search"
+                    placeholder="Search sections..."
+                    :only="['sections']"
+                />
                 <Select
                     :model-value="semesterFilter || 'all'"
                     @update:model-value="onSemesterChange"
@@ -185,11 +206,14 @@ function onGradeLevelChange(value: string) {
                                 View Roster
                             </Link>
                         </Button>
-                        <Button variant="outline" size="sm" class="flex-1" as-child>
-                            <Link :href="`/sections/${section.id}/edit`" prefetch>
-                                <Pencil class="size-4" />
-                                Edit
-                            </Link>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            class="flex-1"
+                            @click="openEditDialog(section)"
+                        >
+                            <Pencil class="size-4" />
+                            Edit
                         </Button>
                     </CardFooter>
                 </Card>
@@ -204,5 +228,13 @@ function onGradeLevelChange(value: string) {
                 </p>
             </div>
         </div>
+
+        <SectionFormDialog
+            v-model:open="dialogOpen"
+            :section="editingSection"
+            :strands="strands"
+            :semesters="semesters"
+            :teachers="teachers"
+        />
     </AppLayout>
 </template>

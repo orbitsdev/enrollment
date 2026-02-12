@@ -100,4 +100,24 @@ class CurriculumController extends Controller
 
         return redirect()->back()->with('success', 'Strand updated successfully.');
     }
+
+    /**
+     * Toggle the active status of a track.
+     */
+    public function toggleTrackActive(Track $track): RedirectResponse
+    {
+        $track->update(['is_active' => !$track->is_active]);
+        $status = $track->is_active ? 'activated' : 'deactivated';
+        return redirect()->back()->with('success', "Track {$status} successfully.");
+    }
+
+    /**
+     * Toggle the active status of a strand.
+     */
+    public function toggleStrandActive(Strand $strand): RedirectResponse
+    {
+        $strand->update(['is_active' => !$strand->is_active]);
+        $status = $strand->is_active ? 'activated' : 'deactivated';
+        return redirect()->back()->with('success', "Strand {$status} successfully.");
+    }
 }

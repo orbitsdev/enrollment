@@ -105,7 +105,7 @@ const strandForm = useForm({
 });
 
 function createStrand(trackId: number) {
-    strandForm.post(`/curriculum/tracks/${trackId}/strands`, {
+    strandForm.transform((data) => ({ ...data, track_id: trackId })).post('/curriculum/strands', {
         preserveScroll: true,
         onSuccess: () => {
             strandForm.reset();

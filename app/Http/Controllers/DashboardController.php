@@ -26,32 +26,19 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard', [
             'auth_user' => Auth::user(),
 
-            // Deferred: stats group
-            'total_students' => Inertia::defer(fn () => Student::count(), 'stats'),
-            'total_enrolled' => Inertia::defer(fn () => $activeSemester
+            'total_students' => fn () => Student::count(),
+            'total_enrolled' => fn () => $activeSemester
                 ? Enrollment::where('semester_id', $activeSemester->id)
                     ->where('status', EnrollmentStatus::Enrolled)
                     ->count()
                 : 0,
-                'stats'
-            ),
-            'total_sections' => Inertia::defer(fn () => $activeSemester
+            'total_sections' => fn () => $activeSemester
                 ? Section::where('semester_id', $activeSemester->id)->count()
                 : Section::count(),
-                'stats'
-            ),
-            'total_teachers' => Inertia::defer(
-                fn () => User::role(UserRole::Teacher->value)->count(),
-                'stats'
-            ),
+            'total_teachers' => fn () => User::role(UserRole::Teacher->value)->count(),
 
-            // Deferred: charts group
-            'enrollment_by_track' => Inertia::defer(function () use ($activeSemester) {
-                if (!$activeSemester) {
-                    return [];
-                }
-
-                return Track::query()
+            'enrollment_by_track' => fn () => $activeSemester
+                ? Track::query()
                     ->get()
                     ->mapWithKeys(function ($track) use ($activeSemester) {
                         $count = Enrollment::where('status', EnrollmentStatus::Enrolled)
@@ -63,15 +50,11 @@ class DashboardController extends Controller
 
                         return [$track->name => $count];
                     })
-                    ->toArray();
-            }, 'charts'),
+                    ->toArray()
+                : [],
 
-            'section_capacity' => Inertia::defer(function () use ($activeSemester) {
-                if (!$activeSemester) {
-                    return [];
-                }
-
-                return Section::where('semester_id', $activeSemester->id)
+            'section_capacity' => fn () => $activeSemester
+                ? Section::where('semester_id', $activeSemester->id)
                     ->withCount(['enrollments as enrolled_count' => function ($q) {
                         $q->where('status', EnrollmentStatus::Enrolled);
                     }])
@@ -82,16 +65,13 @@ class DashboardController extends Controller
                             'max' => $section->max_capacity,
                         ],
                     ])
-                    ->toArray();
-            }, 'charts'),
+                    ->toArray()
+                : [],
 
-            // Deferred: recent group
-            'recent_enrollments' => Inertia::defer(fn () => Enrollment::with(['student', 'section.strand'])
+            'recent_enrollments' => fn () => Enrollment::with(['student', 'section.strand'])
                 ->latest()
                 ->take(10)
                 ->get(),
-                'recent'
-            ),
         ]);
     }
 }

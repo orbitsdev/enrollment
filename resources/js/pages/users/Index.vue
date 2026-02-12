@@ -7,6 +7,7 @@ import DataTable from '@/components/App/DataTable.vue';
 import PageHeader from '@/components/App/PageHeader.vue';
 import SearchInput from '@/components/App/SearchInput.vue';
 import StatusBadge from '@/components/App/StatusBadge.vue';
+import UserFormDialog from '@/components/App/UserFormDialog.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -60,6 +61,20 @@ function onRoleChange(value: string) {
     );
 }
 
+// Dialog state
+const dialogOpen = ref(false);
+const editingUser = ref<UserWithRole | null>(null);
+
+function openCreateDialog() {
+    editingUser.value = null;
+    dialogOpen.value = true;
+}
+
+function openEditDialog(user: UserWithRole) {
+    editingUser.value = user;
+    dialogOpen.value = true;
+}
+
 const confirmingToggle = ref(false);
 const toggleUser = ref<UserWithRole | null>(null);
 const toggleProcessing = ref(false);
@@ -98,11 +113,9 @@ function executeToggle() {
                 description="Manage system users and their roles."
             >
                 <template #actions>
-                    <Button as-child>
-                        <Link href="/users/create">
-                            <Plus class="size-4" />
-                            Add User
-                        </Link>
+                    <Button @click="openCreateDialog">
+                        <Plus class="size-4" />
+                        Add User
                     </Button>
                 </template>
             </PageHeader>
@@ -149,10 +162,12 @@ function executeToggle() {
                     </TableCell>
                     <TableCell class="text-right">
                         <div class="flex items-center justify-end gap-2">
-                            <Button variant="ghost" size="sm" as-child>
-                                <Link :href="`/users/${row.id}/edit`" prefetch>
-                                    Edit
-                                </Link>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                @click="openEditDialog(row)"
+                            >
+                                Edit
                             </Button>
                             <Button
                                 variant="ghost"
@@ -196,6 +211,12 @@ function executeToggle() {
                 </div>
             </div>
         </div>
+
+        <UserFormDialog
+            v-model:open="dialogOpen"
+            :user="editingUser"
+            :roles="roles"
+        />
 
         <ConfirmDialog
             :open="confirmingToggle"
