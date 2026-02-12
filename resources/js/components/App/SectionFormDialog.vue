@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import { watch } from 'vue';
+import { toast } from 'vue-sonner';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -66,12 +67,20 @@ function submit() {
     if (props.section) {
         form.put(`/sections/${props.section.id}`, {
             preserveScroll: true,
-            onSuccess: () => emit('update:open', false),
+            onSuccess: (page) => {
+                page.props.flash = {};
+                toast.success('Section updated successfully.');
+                emit('update:open', false);
+            },
         });
     } else {
         form.post('/sections', {
             preserveScroll: true,
-            onSuccess: () => emit('update:open', false),
+            onSuccess: (page) => {
+                page.props.flash = {};
+                toast.success('Section created successfully.');
+                emit('update:open', false);
+            },
         });
     }
 }

@@ -42,10 +42,12 @@ const props = defineProps<{
     };
 }>();
 
+const sectionSemesterLabel = props.section.semester?.full_label ?? '';
+
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Grades', href: '/grades' },
-    { title: props.section.name },
+    { title: sectionSemesterLabel ? `${props.section.name} — ${sectionSemesterLabel}` : props.section.name },
     { title: props.subject.code },
 ];
 
@@ -149,7 +151,7 @@ const failingCount = computed(() =>
         <div class="flex h-full flex-1 flex-col gap-4 p-4">
             <PageHeader
                 :title="`${subject.code} - ${subject.name}`"
-                :description="`Section: ${section.name} | Grade ${section.grade_level}`"
+                :description="`Section: ${section.name} | Grade ${section.grade_level}${sectionSemesterLabel ? ` | ${sectionSemesterLabel}` : ''}`"
             >
                 <template #actions>
                     <Button variant="outline" as-child>

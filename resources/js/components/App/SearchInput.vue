@@ -9,11 +9,13 @@ const props = withDefaults(
         modelValue?: string;
         placeholder?: string;
         only?: string[];
+        extraData?: Record<string, unknown>;
     }>(),
     {
         modelValue: '',
         placeholder: 'Search...',
         only: () => [],
+        extraData: () => ({}),
     },
 );
 
@@ -23,6 +25,7 @@ const emit = defineEmits<{
 
 const search = ref(props.modelValue);
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+let abortController: AbortController | null = null;
 
 watch(
     () => props.modelValue,
@@ -40,14 +43,27 @@ function onInput(event: Event) {
         clearTimeout(debounceTimer);
     }
 
+    // Cancel any in-flight request
+    if (abortController) {
+        abortController.abort();
+    }
+
     debounceTimer = setTimeout(() => {
+        abortController = new AbortController();
+
         router.reload({
-            data: { search: value || undefined },
+            data: { ...props.extraData, search: value || undefined },
             only: props.only.length > 0 ? props.only : undefined,
             preserveState: true,
             preserveScroll: true,
+            onCancelToken: (token) => {
+                abortController!.signal.addEventListener('abort', () => token.cancel());
+            },
+            onFinish: () => {
+                abortController = null;
+            },
         });
-    }, 300);
+    }, 200);
 }
 </script>
 

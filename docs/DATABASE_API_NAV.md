@@ -162,27 +162,20 @@ Schema::create('subject_strand', function (Blueprint $table) {
 Schema::create('students', function (Blueprint $table) {
     $table->id();
     $table->string('lrn', 12)->unique();       // Learner Reference Number
-    $table->string('first_name', 100);
-    $table->string('middle_name', 100)->nullable();
-    $table->string('last_name', 100);
-    $table->string('suffix', 10)->nullable();  // Jr., III, etc.
+    $table->string('last_name');
+    $table->string('first_name');
+    $table->string('middle_name')->nullable();
+    $table->string('suffix')->nullable();       // Jr., III, etc.
     $table->date('birthdate');
-    $table->string('gender', 10);              // male, female
-    $table->string('barangay');
-    $table->string('municipality')->default('Lake Sebu');
-    $table->string('province')->default('South Cotabato');
-    $table->string('contact', 20)->nullable();
-    $table->string('guardian_name', 200);
-    $table->string('guardian_relationship', 50);
-    $table->string('guardian_contact', 20);
+    $table->string('gender');                   // male, female
+    $table->text('address')->nullable();        // single free-text address field
+    $table->string('contact_number')->nullable();
+    $table->string('guardian_name')->nullable();
+    $table->string('guardian_contact')->nullable();
+    $table->string('guardian_relationship')->nullable();
     $table->string('previous_school')->nullable();
     $table->string('status')->default('active'); // active, transferred, dropped, graduated
     $table->timestamps();
-
-    $table->index('last_name');
-    $table->index('status');
-    $table->index(['last_name', 'first_name']);
-    $table->index(['birthdate', 'last_name']);  // duplicate detection
 });
 ```
 
@@ -303,6 +296,68 @@ Schema::create('audit_logs', function (Blueprint $table) {
     $table->index(['model', 'model_id']);
     $table->index('user_id');
     $table->index('created_at');
+});
+```
+
+---
+
+#### `teacher_profiles` (SF7 — Teacher Profiling) — *Planned / Not Yet Implemented*
+
+> DepEd School Form 7 (SF7) requires detailed teacher profiles. This table extends the `users` table for teachers.
+
+```php
+Schema::create('teacher_profiles', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+    $table->string('employee_id', 20)->nullable();        // DepEd Employee ID
+    $table->string('position_title')->nullable();          // "Teacher I", "Teacher III", "Master Teacher I"
+    $table->string('appointment_status')->nullable();      // permanent, contractual, part-time, job_order
+    $table->string('sex', 10)->nullable();                 // male, female
+    $table->date('birthdate')->nullable();
+    $table->string('contact_number', 20)->nullable();
+    $table->string('address')->nullable();
+
+    // Educational Background
+    $table->string('highest_degree')->nullable();          // "Bachelor's", "Master's", "Doctorate"
+    $table->string('degree_course')->nullable();           // "BSEd Mathematics", "BS Chemistry"
+    $table->string('degree_major')->nullable();            // "Mathematics", "Chemistry", "English"
+    $table->string('school_graduated')->nullable();        // "Eastern Visayas State University"
+    $table->year('year_graduated')->nullable();
+
+    // Professional License
+    $table->string('prc_license_number', 20)->nullable();  // PRC License No.
+    $table->date('prc_validity')->nullable();              // License expiry date
+    $table->string('eligibility')->nullable();             // "LET Passer", "CSC Professional"
+
+    // Teaching Info
+    $table->string('specialization')->nullable();          // "Science", "Mathematics", "English"
+    $table->date('date_hired')->nullable();                // Date first hired
+    $table->integer('teaching_hours_per_week')->nullable();
+
+    $table->timestamps();
+
+    $table->unique('user_id');
+    $table->index('employee_id');
+});
+```
+
+---
+
+#### `teacher_trainings` (SF7 supplementary — trainings/seminars attended) — *Planned / Not Yet Implemented*
+
+```php
+Schema::create('teacher_trainings', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('teacher_profile_id')->constrained()->cascadeOnDelete();
+    $table->string('title');                               // "Senior High School Training"
+    $table->string('type')->nullable();                    // seminar, workshop, training, conference
+    $table->string('sponsor')->nullable();                 // "DepEd Region XII", "CHED"
+    $table->date('date_from')->nullable();
+    $table->date('date_to')->nullable();
+    $table->decimal('hours', 5, 1)->nullable();            // Total training hours
+    $table->timestamps();
+
+    $table->index('teacher_profile_id');
 });
 ```
 
@@ -1223,12 +1278,1269 @@ const isActive = (routeName) => route().current(routeName)
 
 ---
 
-## 6. Complete Project Checklist
+## 7. Model Traits — Complete Code
+
+> Every model uses `use XRelations` and `use XScopes` traits. Models stay under 50 lines.
+
+### 7.1 User
+
+```php
+// app/Models/User.php
+class User extends Authenticatable
+{
+    use HasFactory, Notifiable, HasRoles;
+    use UserRelations, UserScopes;
+
+    protected $fillable = ['name', 'email', 'password', 'is_active'];
+    protected $hidden = ['password', 'remember_token'];
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'is_active' => 'boolean',
+        ];
+    }
+}
+```
+
+```php
+// app/Traits/Model/UserRelations.php
+namespace App\Traits\Model;
+
+use App\Models\Section;
+use App\Models\AuditLog;
+use App\Models\Grade;
+
+trait UserRelations
+{
+    public function advisedSections()
+    {
+        return $this->hasMany(Section::class, 'adviser_id');
+    }
+
+    public function encodedGrades()
+    {
+        return $this->hasMany(Grade::class, 'encoded_by');
+    }
+
+    public function auditLogs()
+    {
+        return $this->hasMany(AuditLog::class);
+    }
+}
+```
+
+```php
+// app/Traits/Model/UserScopes.php
+namespace App\Traits\Model;
+
+trait UserScopes
+{
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeTeachers($query)
+    {
+        return $query->role('teacher');
+    }
+
+    public function scopeSearch($query, ?string $search)
+    {
+        return $query->when($search, fn ($q) =>
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+        );
+    }
+}
+```
+
+---
+
+### 7.2 Student
+
+```php
+// app/Models/Student.php
+class Student extends Model
+{
+    use HasFactory;
+    use StudentRelations, StudentScopes;
+
+    protected $fillable = [
+        'lrn', 'last_name', 'first_name', 'middle_name', 'suffix',
+        'birthdate', 'gender', 'address', 'contact_number',
+        'guardian_name', 'guardian_contact', 'guardian_relationship',
+        'previous_school', 'status',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'birthdate' => 'date',
+            'status' => \App\Enums\StudentStatus::class,
+        ];
+    }
+
+    public function getFullNameAttribute(): string
+    {
+        return trim("{$this->last_name}, {$this->first_name} {$this->middle_name}");
+    }
+}
+```
+
+```php
+// app/Traits/Model/StudentRelations.php
+namespace App\Traits\Model;
+
+use App\Models\Enrollment;
+use App\Models\Grade;
+
+trait StudentRelations
+{
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function currentEnrollment()
+    {
+        return $this->hasOne(Enrollment::class)->latestOfMany();
+    }
+
+    public function latestEnrollment()
+    {
+        return $this->hasOne(Enrollment::class)->latestOfMany('enrolled_at');
+    }
+
+    public function grades()
+    {
+        return $this->hasManyThrough(Grade::class, Enrollment::class);
+    }
+}
+```
+
+```php
+// app/Traits/Model/StudentScopes.php
+namespace App\Traits\Model;
+
+use App\Enums\StudentStatus;
+
+trait StudentScopes
+{
+    public function scopeSearch($query, ?string $search)
+    {
+        return $query->when($search, fn ($q) =>
+            $q->where('lrn', 'like', "%{$search}%")
+              ->orWhere('last_name', 'like', "%{$search}%")
+              ->orWhere('first_name', 'like', "%{$search}%")
+        );
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', StudentStatus::Active);
+    }
+
+    public function scopeByStatus($query, ?string $status)
+    {
+        return $query->when($status, fn ($q) => $q->where('status', $status));
+    }
+
+    public function scopeByStrand($query, ?int $strandId)
+    {
+        return $query->when($strandId, fn ($q) =>
+            $q->whereHas('currentEnrollment.section', fn ($s) =>
+                $s->where('strand_id', $strandId)
+            )
+        );
+    }
+
+    public function scopeByGradeLevel($query, ?int $gradeLevel)
+    {
+        return $query->when($gradeLevel, fn ($q) =>
+            $q->whereHas('currentEnrollment.section', fn ($s) =>
+                $s->where('grade_level', $gradeLevel)
+            )
+        );
+    }
+
+    public function scopeWithCurrentSection($query)
+    {
+        return $query->with(['currentEnrollment.section.strand']);
+    }
+}
+```
+
+---
+
+### 7.3 SchoolYear
+
+```php
+// app/Models/SchoolYear.php
+class SchoolYear extends Model
+{
+    use HasFactory;
+    use SchoolYearRelations, SchoolYearScopes;
+
+    protected $fillable = ['name', 'is_active'];
+
+    protected function casts(): array
+    {
+        return ['is_active' => 'boolean'];
+    }
+}
+```
+
+```php
+// app/Traits/Model/SchoolYearRelations.php
+namespace App\Traits\Model;
+
+use App\Models\Semester;
+
+trait SchoolYearRelations
+{
+    public function semesters()
+    {
+        return $this->hasMany(Semester::class)->orderBy('number');
+    }
+
+    public function firstSemester()
+    {
+        return $this->hasOne(Semester::class)->where('number', 1);
+    }
+
+    public function secondSemester()
+    {
+        return $this->hasOne(Semester::class)->where('number', 2);
+    }
+}
+```
+
+```php
+// app/Traits/Model/SchoolYearScopes.php
+namespace App\Traits\Model;
+
+trait SchoolYearScopes
+{
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+}
+```
+
+---
+
+### 7.4 Semester
+
+```php
+// app/Models/Semester.php
+class Semester extends Model
+{
+    use HasFactory;
+    use SemesterRelations, SemesterScopes;
+
+    protected $fillable = ['school_year_id', 'number', 'is_active', 'enrollment_open'];
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+            'enrollment_open' => 'boolean',
+        ];
+    }
+
+    public function getLabelAttribute(): string
+    {
+        return ($this->number === 1 ? '1st' : '2nd') . ' Semester';
+    }
+}
+```
+
+```php
+// app/Traits/Model/SemesterRelations.php
+namespace App\Traits\Model;
+
+use App\Models\SchoolYear;
+use App\Models\Section;
+use App\Models\Enrollment;
+
+trait SemesterRelations
+{
+    public function schoolYear()
+    {
+        return $this->belongsTo(SchoolYear::class);
+    }
+
+    public function sections()
+    {
+        return $this->hasMany(Section::class);
+    }
+
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+}
+```
+
+```php
+// app/Traits/Model/SemesterScopes.php
+namespace App\Traits\Model;
+
+trait SemesterScopes
+{
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public static function activeSemester()
+    {
+        return static::where('is_active', true)->with('schoolYear')->first();
+    }
+}
+```
+
+---
+
+### 7.5 Track
+
+```php
+// app/Models/Track.php
+class Track extends Model
+{
+    use HasFactory;
+    use TrackRelations;
+
+    protected $fillable = ['name', 'code', 'is_active', 'sort_order'];
+
+    protected function casts(): array
+    {
+        return ['is_active' => 'boolean'];
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true)->orderBy('sort_order');
+    }
+}
+```
+
+```php
+// app/Traits/Model/TrackRelations.php
+namespace App\Traits\Model;
+
+use App\Models\Strand;
+
+trait TrackRelations
+{
+    public function strands()
+    {
+        return $this->hasMany(Strand::class)->orderBy('sort_order');
+    }
+
+    public function activeStrands()
+    {
+        return $this->hasMany(Strand::class)->where('is_active', true)->orderBy('sort_order');
+    }
+}
+```
+
+---
+
+### 7.6 Strand
+
+```php
+// app/Models/Strand.php
+class Strand extends Model
+{
+    use HasFactory;
+    use StrandRelations;
+
+    protected $fillable = ['track_id', 'name', 'code', 'is_active', 'sort_order'];
+
+    protected function casts(): array
+    {
+        return ['is_active' => 'boolean'];
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true)->orderBy('sort_order');
+    }
+}
+```
+
+```php
+// app/Traits/Model/StrandRelations.php
+namespace App\Traits\Model;
+
+use App\Models\Track;
+use App\Models\Subject;
+use App\Models\Section;
+
+trait StrandRelations
+{
+    public function track()
+    {
+        return $this->belongsTo(Track::class);
+    }
+
+    public function subjects()
+    {
+        return $this->belongsToMany(Subject::class, 'subject_strand')
+            ->withPivot('grade_level', 'semester', 'sort_order')
+            ->orderByPivot('sort_order');
+    }
+
+    public function subjectsForGradeAndSemester(int $gradeLevel, int $semester)
+    {
+        return $this->subjects()
+            ->wherePivot('grade_level', $gradeLevel)
+            ->wherePivot('semester', $semester);
+    }
+
+    public function sections()
+    {
+        return $this->hasMany(Section::class);
+    }
+}
+```
+
+---
+
+### 7.7 Subject
+
+```php
+// app/Models/Subject.php
+class Subject extends Model
+{
+    use HasFactory;
+    use SubjectRelations, SubjectScopes;
+
+    protected $fillable = ['code', 'name', 'type', 'hours', 'prerequisite_id', 'is_active'];
+
+    protected function casts(): array
+    {
+        return [
+            'type' => \App\Enums\SubjectType::class,
+            'is_active' => 'boolean',
+            'hours' => 'decimal:1',
+        ];
+    }
+}
+```
+
+```php
+// app/Traits/Model/SubjectRelations.php
+namespace App\Traits\Model;
+
+use App\Models\Strand;
+use App\Models\Grade;
+use App\Models\Enrollment;
+
+trait SubjectRelations
+{
+    public function prerequisite()
+    {
+        return $this->belongsTo(self::class, 'prerequisite_id');
+    }
+
+    public function dependents()
+    {
+        return $this->hasMany(self::class, 'prerequisite_id');
+    }
+
+    public function strands()
+    {
+        return $this->belongsToMany(Strand::class, 'subject_strand')
+            ->withPivot('grade_level', 'semester', 'sort_order');
+    }
+
+    public function grades()
+    {
+        return $this->hasMany(Grade::class);
+    }
+
+    public function enrollments()
+    {
+        return $this->belongsToMany(Enrollment::class, 'enrollment_subject');
+    }
+}
+```
+
+```php
+// app/Traits/Model/SubjectScopes.php
+namespace App\Traits\Model;
+
+trait SubjectScopes
+{
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeSearch($query, ?string $search)
+    {
+        return $query->when($search, fn ($q) =>
+            $q->where('code', 'like', "%{$search}%")
+              ->orWhere('name', 'like', "%{$search}%")
+        );
+    }
+
+    public function scopeByType($query, ?string $type)
+    {
+        return $query->when($type, fn ($q) => $q->where('type', $type));
+    }
+
+    public function scopeForStrand($query, int $strandId, int $gradeLevel, int $semester)
+    {
+        return $query->whereHas('strands', fn ($q) =>
+            $q->where('strand_id', $strandId)
+              ->where('subject_strand.grade_level', $gradeLevel)
+              ->where('subject_strand.semester', $semester)
+        );
+    }
+}
+```
+
+---
+
+### 7.8 Section
+
+```php
+// app/Models/Section.php
+class Section extends Model
+{
+    use HasFactory;
+    use SectionRelations, SectionScopes;
+
+    protected $fillable = ['name', 'strand_id', 'semester_id', 'grade_level', 'max_capacity', 'adviser_id'];
+}
+```
+
+```php
+// app/Traits/Model/SectionRelations.php
+namespace App\Traits\Model;
+
+use App\Models\Strand;
+use App\Models\Semester;
+use App\Models\User;
+use App\Models\Enrollment;
+
+trait SectionRelations
+{
+    public function strand()
+    {
+        return $this->belongsTo(Strand::class);
+    }
+
+    public function semester()
+    {
+        return $this->belongsTo(Semester::class);
+    }
+
+    public function adviser()
+    {
+        return $this->belongsTo(User::class, 'adviser_id');
+    }
+
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function activeEnrollments()
+    {
+        return $this->hasMany(Enrollment::class)->where('status', 'enrolled');
+    }
+}
+```
+
+```php
+// app/Traits/Model/SectionScopes.php
+namespace App\Traits\Model;
+
+use App\Models\Semester;
+
+trait SectionScopes
+{
+    public function scopeCurrentSemester($query)
+    {
+        $activeSemester = Semester::where('is_active', true)->first();
+        return $query->when($activeSemester, fn ($q) =>
+            $q->where('semester_id', $activeSemester->id)
+        );
+    }
+
+    public function scopeByStrand($query, ?int $strandId)
+    {
+        return $query->when($strandId, fn ($q) => $q->where('strand_id', $strandId));
+    }
+
+    public function scopeByGradeLevel($query, ?int $gradeLevel)
+    {
+        return $query->when($gradeLevel, fn ($q) => $q->where('grade_level', $gradeLevel));
+    }
+
+    public function getEnrolledCountAttribute(): int
+    {
+        return $this->activeEnrollments()->count();
+    }
+
+    public function getIsFull(): bool
+    {
+        return $this->enrolled_count >= $this->max_capacity;
+    }
+
+    public function getCapacityPercentAttribute(): int
+    {
+        return $this->max_capacity > 0
+            ? round(($this->enrolled_count / $this->max_capacity) * 100)
+            : 0;
+    }
+}
+```
+
+---
+
+### 7.9 Enrollment
+
+```php
+// app/Models/Enrollment.php
+class Enrollment extends Model
+{
+    use HasFactory;
+    use EnrollmentRelations, EnrollmentScopes;
+
+    protected $fillable = ['student_id', 'section_id', 'semester_id', 'status', 'remarks', 'enrolled_at'];
+
+    protected function casts(): array
+    {
+        return [
+            'status' => \App\Enums\EnrollmentStatus::class,
+            'enrolled_at' => 'datetime',
+        ];
+    }
+}
+```
+
+```php
+// app/Traits/Model/EnrollmentRelations.php
+namespace App\Traits\Model;
+
+use App\Models\Student;
+use App\Models\Section;
+use App\Models\Semester;
+use App\Models\Subject;
+use App\Models\Grade;
+
+trait EnrollmentRelations
+{
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
+
+    public function section()
+    {
+        return $this->belongsTo(Section::class);
+    }
+
+    public function semester()
+    {
+        return $this->belongsTo(Semester::class);
+    }
+
+    public function subjects()
+    {
+        return $this->belongsToMany(Subject::class, 'enrollment_subject');
+    }
+
+    public function grades()
+    {
+        return $this->hasMany(Grade::class);
+    }
+
+    public function gradeFor(int $subjectId)
+    {
+        return $this->grades()->where('subject_id', $subjectId)->first();
+    }
+}
+```
+
+```php
+// app/Traits/Model/EnrollmentScopes.php
+namespace App\Traits\Model;
+
+use App\Models\Semester;
+use App\Enums\EnrollmentStatus;
+
+trait EnrollmentScopes
+{
+    public function scopeCurrentSemester($query)
+    {
+        $activeSemester = Semester::where('is_active', true)->first();
+        return $query->when($activeSemester, fn ($q) =>
+            $q->where('semester_id', $activeSemester->id)
+        );
+    }
+
+    public function scopeEnrolled($query)
+    {
+        return $query->where('status', EnrollmentStatus::Enrolled);
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', EnrollmentStatus::Pending);
+    }
+
+    public function scopeSearch($query, ?string $search)
+    {
+        return $query->when($search, fn ($q) =>
+            $q->whereHas('student', fn ($s) =>
+                $s->where('lrn', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('first_name', 'like', "%{$search}%")
+            )
+        );
+    }
+
+    public function scopeByStrand($query, ?int $strandId)
+    {
+        return $query->when($strandId, fn ($q) =>
+            $q->whereHas('section', fn ($s) => $s->where('strand_id', $strandId))
+        );
+    }
+
+    public function scopeBySectionId($query, ?int $sectionId)
+    {
+        return $query->when($sectionId, fn ($q) => $q->where('section_id', $sectionId));
+    }
+
+    public function scopeByStatus($query, ?string $status)
+    {
+        return $query->when($status, fn ($q) => $q->where('status', $status));
+    }
+
+    // Report scopes
+    public static function summaryByTrack(?int $semesterId = null)
+    {
+        return static::query()
+            ->when($semesterId, fn ($q) => $q->where('semester_id', $semesterId), fn ($q) => $q->currentSemester())
+            ->enrolled()
+            ->join('sections', 'enrollments.section_id', '=', 'sections.id')
+            ->join('strands', 'sections.strand_id', '=', 'strands.id')
+            ->join('tracks', 'strands.track_id', '=', 'tracks.id')
+            ->selectRaw('tracks.name as track, COUNT(*) as total')
+            ->groupBy('tracks.name')
+            ->get();
+    }
+
+    public static function summaryByStrand(?int $semesterId = null)
+    {
+        return static::query()
+            ->when($semesterId, fn ($q) => $q->where('semester_id', $semesterId), fn ($q) => $q->currentSemester())
+            ->enrolled()
+            ->join('sections', 'enrollments.section_id', '=', 'sections.id')
+            ->join('strands', 'sections.strand_id', '=', 'strands.id')
+            ->selectRaw('strands.name as strand, COUNT(*) as total')
+            ->groupBy('strands.name')
+            ->get();
+    }
+
+    public static function summaryBySection(?int $semesterId = null)
+    {
+        return static::query()
+            ->when($semesterId, fn ($q) => $q->where('semester_id', $semesterId), fn ($q) => $q->currentSemester())
+            ->enrolled()
+            ->join('sections', 'enrollments.section_id', '=', 'sections.id')
+            ->join('strands', 'sections.strand_id', '=', 'strands.id')
+            ->selectRaw('sections.id, sections.name, strands.name as strand, sections.grade_level, sections.max_capacity, COUNT(*) as enrolled_count')
+            ->groupBy('sections.id', 'sections.name', 'strands.name', 'sections.grade_level', 'sections.max_capacity')
+            ->get();
+    }
+
+    public static function summaryByGender(?int $semesterId = null)
+    {
+        return static::query()
+            ->when($semesterId, fn ($q) => $q->where('semester_id', $semesterId), fn ($q) => $q->currentSemester())
+            ->enrolled()
+            ->join('students', 'enrollments.student_id', '=', 'students.id')
+            ->selectRaw('students.gender, COUNT(*) as total')
+            ->groupBy('students.gender')
+            ->get();
+    }
+}
+```
+
+---
+
+### 7.10 Grade
+
+```php
+// app/Models/Grade.php
+class Grade extends Model
+{
+    use HasFactory;
+    use GradeRelations, GradeScopes;
+
+    protected $fillable = ['enrollment_id', 'subject_id', 'midterm', 'finals', 'final_grade', 'remarks', 'is_locked', 'encoded_by'];
+
+    protected function casts(): array
+    {
+        return [
+            'midterm' => 'decimal:2',
+            'finals' => 'decimal:2',
+            'final_grade' => 'decimal:2',
+            'is_locked' => 'boolean',
+            'remarks' => \App\Enums\GradeRemarks::class,
+        ];
+    }
+}
+```
+
+```php
+// app/Traits/Model/GradeRelations.php
+namespace App\Traits\Model;
+
+use App\Models\Enrollment;
+use App\Models\Subject;
+use App\Models\User;
+
+trait GradeRelations
+{
+    public function enrollment()
+    {
+        return $this->belongsTo(Enrollment::class);
+    }
+
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class);
+    }
+
+    public function encoder()
+    {
+        return $this->belongsTo(User::class, 'encoded_by');
+    }
+}
+```
+
+```php
+// app/Traits/Model/GradeScopes.php
+namespace App\Traits\Model;
+
+trait GradeScopes
+{
+    public function scopePassed($query)
+    {
+        return $query->where('remarks', 'passed');
+    }
+
+    public function scopeFailed($query)
+    {
+        return $query->where('remarks', 'failed');
+    }
+
+    public function scopeLocked($query)
+    {
+        return $query->where('is_locked', true);
+    }
+
+    public function scopeUnlocked($query)
+    {
+        return $query->where('is_locked', false);
+    }
+}
+```
+
+---
+
+### 7.11 AuditLog
+
+```php
+// app/Models/AuditLog.php
+class AuditLog extends Model
+{
+    use HasFactory;
+    use AuditLogRelations;
+
+    public $timestamps = false;
+    protected $fillable = ['user_id', 'action', 'model', 'model_id', 'old_values', 'new_values', 'ip_address', 'created_at'];
+
+    protected function casts(): array
+    {
+        return [
+            'old_values' => 'array',
+            'new_values' => 'array',
+            'created_at' => 'datetime',
+        ];
+    }
+
+    public function getModelShortNameAttribute(): string
+    {
+        return class_basename($this->model);
+    }
+}
+```
+
+```php
+// app/Traits/Model/AuditLogRelations.php
+namespace App\Traits\Model;
+
+use App\Models\User;
+
+trait AuditLogRelations
+{
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function scopeRecent($query, int $limit = 10)
+    {
+        return $query->with('user:id,name')
+            ->latest('created_at')
+            ->take($limit);
+    }
+}
+```
+
+---
+
+### 7.12 TeacherProfile (SF7 — Teacher Profiling)
+
+```php
+// app/Models/TeacherProfile.php
+class TeacherProfile extends Model
+{
+    use HasFactory;
+    use TeacherProfileRelations;
+
+    protected $fillable = [
+        'user_id', 'employee_id', 'position_title', 'appointment_status',
+        'sex', 'birthdate', 'contact_number', 'address',
+        'highest_degree', 'degree_course', 'degree_major', 'school_graduated', 'year_graduated',
+        'prc_license_number', 'prc_validity', 'eligibility',
+        'specialization', 'date_hired', 'teaching_hours_per_week',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'birthdate' => 'date',
+            'prc_validity' => 'date',
+            'date_hired' => 'date',
+        ];
+    }
+
+    public function getYearsInServiceAttribute(): ?int
+    {
+        return $this->date_hired ? $this->date_hired->diffInYears(now()) : null;
+    }
+
+    public function getIsPrcExpiredAttribute(): bool
+    {
+        return $this->prc_validity && $this->prc_validity->isPast();
+    }
+}
+```
+
+```php
+// app/Traits/Model/TeacherProfileRelations.php
+namespace App\Traits\Model;
+
+use App\Models\User;
+use App\Models\TeacherTraining;
+
+trait TeacherProfileRelations
+{
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function trainings()
+    {
+        return $this->hasMany(TeacherTraining::class)->orderByDesc('date_from');
+    }
+
+    public function totalTrainingHours(): float
+    {
+        return $this->trainings()->sum('hours') ?? 0;
+    }
+}
+```
+
+---
+
+### 7.13 TeacherTraining
+
+```php
+// app/Models/TeacherTraining.php
+class TeacherTraining extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'teacher_profile_id', 'title', 'type', 'sponsor',
+        'date_from', 'date_to', 'hours',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'date_from' => 'date',
+            'date_to' => 'date',
+            'hours' => 'decimal:1',
+        ];
+    }
+
+    public function teacherProfile()
+    {
+        return $this->belongsTo(TeacherProfile::class);
+    }
+}
+```
+
+---
+
+### 7.14 Updated User Model (with TeacherProfile relation)
+
+```php
+// Add to app/Traits/Model/UserRelations.php
+public function teacherProfile()
+{
+    return $this->hasOne(\App\Models\TeacherProfile::class);
+}
+
+public function hasTeacherProfile(): bool
+{
+    return $this->teacherProfile()->exists();
+}
+```
+
+---
+
+### 7.12 SchoolSetting
+
+```php
+// app/Models/SchoolSetting.php
+class SchoolSetting extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['key', 'value'];
+
+    // Helper: get a setting value with fallback
+    public static function get(string $key, mixed $default = null): mixed
+    {
+        return static::where('key', $key)->value('value') ?? $default;
+    }
+
+    // Helper: set a setting value
+    public static function set(string $key, mixed $value): void
+    {
+        static::updateOrCreate(['key' => $key], ['value' => $value]);
+    }
+
+    // Helper: get all settings as key-value array
+    public static function allAsArray(): array
+    {
+        return static::pluck('value', 'key')->toArray();
+    }
+}
+```
+
+---
+
+### 7.13 Trait File Summary
+
+| Trait File | Used By | Contains |
+|---|---|---|
+| `UserRelations.php` | User | advisedSections, encodedGrades, auditLogs |
+| `UserScopes.php` | User | active, teachers, search |
+| `StudentRelations.php` | Student | enrollments, currentEnrollment, latestEnrollment, grades |
+| `StudentScopes.php` | Student | search, active, byStatus, byStrand, byGradeLevel, withCurrentSection |
+| `SchoolYearRelations.php` | SchoolYear | semesters, firstSemester, secondSemester |
+| `SchoolYearScopes.php` | SchoolYear | active |
+| `SemesterRelations.php` | Semester | schoolYear, sections, enrollments |
+| `SemesterScopes.php` | Semester | active, activeSemester |
+| `TrackRelations.php` | Track | strands, activeStrands |
+| `StrandRelations.php` | Strand | track, subjects, subjectsForGradeAndSemester, sections |
+| `SubjectRelations.php` | Subject | prerequisite, dependents, strands, grades, enrollments |
+| `SubjectScopes.php` | Subject | active, search, byType, forStrand |
+| `SectionRelations.php` | Section | strand, semester, adviser, enrollments, activeEnrollments |
+| `SectionScopes.php` | Section | currentSemester, byStrand, byGradeLevel, enrolledCount, isFull, capacityPercent |
+| `EnrollmentRelations.php` | Enrollment | student, section, semester, subjects, grades, gradeFor |
+| `EnrollmentScopes.php` | Enrollment | currentSemester, enrolled, pending, search, byStrand, bySectionId, byStatus, summaryByTrack/Strand/Section/Gender |
+| `GradeRelations.php` | Grade | enrollment, subject, encoder |
+| `GradeScopes.php` | Grade | passed, failed, locked, unlocked |
+| `AuditLogRelations.php` | AuditLog | user, recent |
+| `TeacherProfileRelations.php` | TeacherProfile | user, trainings, totalTrainingHours |
+
+**Total: 21 trait files across 13 models. Every relationship and query scope is extracted. Models are clean.**
+
+---
+
+### 7.16 TeacherProfile Controller & Pages
+
+```php
+// app/Http/Controllers/TeacherProfileController.php
+
+// GET /teachers
+public function index(Request $request)
+{
+    return Inertia::render('Teachers/Index', [
+        'teachers' => fn () => User::role('teacher')
+            ->with('teacherProfile')
+            ->withCount('advisedSections')
+            ->search($request->search)
+            ->active()
+            ->orderBy('name')
+            ->paginate(25)
+            ->withQueryString(),
+        'filters' => $request->only(['search']),
+    ]);
+}
+
+// GET /teachers/{user}
+public function show(User $user)
+{
+    return Inertia::render('Teachers/Show', [
+        'teacher' => $user->load('teacherProfile.trainings', 'advisedSections.strand'),
+    ]);
+}
+
+// GET /teachers/{user}/edit
+public function edit(User $user)
+{
+    return Inertia::render('Teachers/Edit', [
+        'teacher' => $user->load('teacherProfile.trainings'),
+    ]);
+}
+
+// PUT /teachers/{user}
+public function update(UpdateTeacherProfileRequest $request, User $user)
+{
+    $user->teacherProfile()->updateOrCreate(
+        ['user_id' => $user->id],
+        $request->validated()
+    );
+
+    return redirect()->back()->with('success', 'Teacher profile updated.');
+}
+
+// POST /teachers/{user}/trainings
+public function addTraining(Request $request, User $user)
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'type' => 'nullable|string|max:50',
+        'sponsor' => 'nullable|string|max:255',
+        'date_from' => 'nullable|date',
+        'date_to' => 'nullable|date|after_or_equal:date_from',
+        'hours' => 'nullable|numeric|min:0',
+    ]);
+
+    $user->teacherProfile->trainings()->create($request->all());
+
+    return redirect()->back()->with('success', 'Training added.');
+}
+
+// DELETE /teachers/{user}/trainings/{training}
+public function removeTraining(User $user, TeacherTraining $training)
+{
+    $training->delete();
+    return redirect()->back()->with('success', 'Training removed.');
+}
+
+// GET /reports/school-forms/sf7 — Generate SF7
+public function generateSF7()
+{
+    return (new GenerateSF7)->download();
+}
+```
+
+**Teacher Profile Page (what it looks like):**
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│  TEACHER PROFILE — Ms. Maria Cruz                              │
+│                                                                │
+│  ┌──────────────┐ ┌──────────────────┐ ┌────────────────────┐  │
+│  │ Personal Info│ │ Qualifications   │ │ Trainings          │  │
+│  └──────┬───────┘ └──────────────────┘ └────────────────────┘  │
+│         │                                                      │
+│  ┌──────▼──────────────────────────────────────────────────┐   │
+│  │  Employee ID:     T-2024-001                            │   │
+│  │  Position:        Teacher III                           │   │
+│  │  Status:          Permanent                             │   │
+│  │  Specialization:  Mathematics                           │   │
+│  │  Date Hired:      June 2018 (6 years in service)        │   │
+│  │                                                         │   │
+│  │  Degree:          BSEd Mathematics                      │   │
+│  │  School:          Notre Dame of Marbel University       │   │
+│  │  Year:            2017                                  │   │
+│  │                                                         │   │
+│  │  PRC License:     0987654  (Valid until Dec 2026) ✅    │   │
+│  │  Eligibility:     LET Passer                            │   │
+│  │                                                         │   │
+│  │  Advised Sections:                                      │   │
+│  │    • STEM-A (Grade 11) — 47 students                    │   │
+│  │                                                         │   │
+│  │  Teaching Load:   30 hrs/week                           │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                │
+│  Trainings/Seminars:                                           │
+│  ┌──────────────────────────────┬──────────┬────────┬───────┐  │
+│  │ Title                        │ Sponsor  │ Date   │ Hours │  │
+│  ├──────────────────────────────┼──────────┼────────┼───────┤  │
+│  │ SHS Curriculum Training      │ DepEd XII│ 2024   │  40   │  │
+│  │ Research Writing Workshop    │ CHED     │ 2023   │  24   │  │
+│  │ IPCRF Orientation            │ DepEd    │ 2023   │   8   │  │
+│  │ Gender & Development Seminar │ CSC      │ 2022   │  16   │  │
+│  └──────────────────────────────┴──────────┴────────┴───────┘  │
+│  Total Training Hours: 88                                      │
+│                                                                │
+│  [✏️ Edit Profile]  [+ Add Training]                           │
+└────────────────────────────────────────────────────────────────┘
+```
+
+**Routes to add:**
+
+```php
+// Teachers (admin/registrar access)
+Route::resource('teachers', TeacherProfileController::class)->only(['index', 'show', 'edit', 'update']);
+Route::post('teachers/{user}/trainings', [TeacherProfileController::class, 'addTraining'])->name('teachers.trainings.store');
+Route::delete('teachers/{user}/trainings/{training}', [TeacherProfileController::class, 'removeTraining'])->name('teachers.trainings.destroy');
+```
+
+**Sidebar update — add under Records:**
+
+```
+│  RECORDS                │
+│  👤 Students            │
+│  👩‍🏫 Teachers            │   ← NEW
+│  🏫 Sections            │
+```
+
+**DepEd School Forms update — add SF7:**
+
+```
+│  📄 SF7 — Personnel Profile       [Generate Excel]  │   ← NEW
+```
 
 ### Before Code (All Done ✅)
 
 - [x] PRD v2 — What the system does, who uses it
-- [x] Feature List v2 — 48 features with difficulty ratings
+- [x] Feature List v2 — 45 features with difficulty ratings
 - [x] System Journey — 10 complete user flows
 - [x] Architecture — Packages, folder structure, coding conventions
 - [x] Inertia Performance Guide — useForm, deferred, partial reloads
@@ -1242,12 +2554,44 @@ const isActive = (routeName) => route().current(routeName)
 
 | Phase | What | Status |
 |---|---|---|
-| 0 | Project setup + packages + folder structure | ⬜ Ready to start |
-| 1 | Auth + Users + School Year + Settings | ⬜ |
-| 2 | Curriculum (Tracks, Strands, Subjects) | ⬜ |
-| 3 | Students + Sections | ⬜ |
-| 4 | Enrollment Pipeline (5-step wizard) | ⬜ |
-| 5 | Grades | ⬜ |
-| 6 | Dashboard + Reports + DepEd Forms | ⬜ |
-| 7 | Data Import | ⬜ |
+| 0 | Project setup + packages + folder structure | ✅ Done |
+| 1 | Auth + Users + School Year + Settings | ✅ Done |
+| 2 | Curriculum (Tracks, Strands, Subjects) | ✅ Done |
+| 3 | Students + Sections | ✅ Done |
+| 4 | Enrollment Pipeline (5-step wizard) | ✅ Done |
+| 5 | Grades | ✅ Done |
+| 6 | Dashboard + Reports + DepEd Forms | ✅ Done |
+| 7 | Data Import | ✅ Done |
+| 8 | Testing + Polish + Deploy | ⬜ |
+
+---
+
+## 8. Complete Project Checklist
+
+### Before Code (All Done ✅)
+
+- [x] PRD v2 — What the system does, who uses it
+- [x] Feature List v2 — 45 features with difficulty ratings
+- [x] System Journey — 10 complete user flows
+- [x] Architecture — Packages, folder structure, coding conventions
+- [x] Inertia Performance Guide — useForm, deferred, partial reloads
+- [x] Database Schema — 14 tables with all columns, indexes, FKs
+- [x] ERD — Visual relationship map
+- [x] Seeder Data — Roles, curriculum, real Filipino names, DepEd subjects
+- [x] API Design — What every controller returns
+- [x] Sidebar Navigation — Per-role menu structure with code
+- [x] Model Traits — 19 trait files, every relationship and scope extracted
+
+### Build Order
+
+| Phase | What | Status |
+|---|---|---|
+| 0 | Project setup + packages + folder structure | ✅ Done |
+| 1 | Auth + Users + School Year + Settings | ✅ Done |
+| 2 | Curriculum (Tracks, Strands, Subjects) | ✅ Done |
+| 3 | Students + Sections | ✅ Done |
+| 4 | Enrollment Pipeline (5-step wizard) | ✅ Done |
+| 5 | Grades | ✅ Done |
+| 6 | Dashboard + Reports + DepEd Forms | ✅ Done |
+| 7 | Data Import | ✅ Done |
 | 8 | Testing + Polish + Deploy | ⬜ |

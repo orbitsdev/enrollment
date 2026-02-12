@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import { toast } from 'vue-sonner';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,7 +65,7 @@ async function handleFileUpload() {
         const data = await response.json();
 
         if (!response.ok) {
-            alert(data.message ?? 'Upload failed');
+            toast.error(data.message ?? 'Upload failed');
             return;
         }
 
@@ -72,7 +73,7 @@ async function handleFileUpload() {
         invalidRows.value = data.invalid;
         step.value = 2;
     } catch (e) {
-        alert('Upload failed. Please try again.');
+        toast.error('Upload failed. Please try again.');
     } finally {
         uploading.value = false;
     }
@@ -96,7 +97,7 @@ async function confirmImport() {
         importResult.value = data;
         step.value = 3;
     } catch (e) {
-        alert('Import failed. Please try again.');
+        toast.error('Import failed. Please try again.');
     } finally {
         importing.value = false;
     }

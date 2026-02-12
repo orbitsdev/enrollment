@@ -64,7 +64,7 @@ class GradeController extends Controller
         });
 
         return Inertia::render('grades/Index', [
-            'sections' => $sections,
+            'sections' => fn () => $sections,
         ]);
     }
 

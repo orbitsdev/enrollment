@@ -82,6 +82,8 @@ Route::middleware(['auth', 'role:admin|registrar'])->group(function () {
     Route::get('reports/export/enrollment-summary', [ReportController::class, 'exportEnrollmentSummary'])->name('reports.export.enrollment-summary');
     Route::get('reports/export/class-list/{section}', [ReportController::class, 'exportClassList'])->name('reports.export.class-list');
     Route::get('reports/export/masterlist', [ReportController::class, 'exportMasterlist'])->name('reports.export.masterlist');
+    Route::get('reports/generate/sf1/{section}', [ReportController::class, 'generateSF1'])->name('reports.generate.sf1');
+    Route::get('reports/generate/sf5/{section}', [ReportController::class, 'generateSF5'])->name('reports.generate.sf5');
     Route::get('reports/generate/sf9/{enrollment}', [ReportController::class, 'generateSF9'])->name('reports.generate.sf9');
     Route::get('reports/generate/sf10/{student}', [ReportController::class, 'generateSF10'])->name('reports.generate.sf10');
 

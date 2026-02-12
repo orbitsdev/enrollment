@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { Head, router, useForm } from '@inertiajs/vue3';
-import { ChevronDown, ChevronRight, Edit2, Layers, Plus, X } from 'lucide-vue-next';
+import { Head, router } from '@inertiajs/vue3';
+import { ChevronDown, ChevronRight, Edit2, Layers, Plus } from 'lucide-vue-next';
 import { ref } from 'vue';
+import { toast } from 'vue-sonner';
 import PageHeader from '@/components/App/PageHeader.vue';
-import InputError from '@/components/InputError.vue';
+import StrandFormDialog from '@/components/App/StrandFormDialog.vue';
+import TrackFormDialog from '@/components/App/TrackFormDialog.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -19,7 +20,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { BreadcrumbItem, Track } from '@/types';
+import type { BreadcrumbItem, Strand, Track } from '@/types';
 
 defineProps<{
     tracks: Track[];
@@ -42,50 +43,18 @@ function toggleTrack(trackId: number) {
     }
 }
 
-// Create track form
-const showCreateTrack = ref(false);
-const trackForm = useForm({
-    name: '',
-    code: '',
-});
+// Track dialog state
+const trackDialogOpen = ref(false);
+const editingTrack = ref<Track | null>(null);
 
-function createTrack() {
-    trackForm.post('/curriculum/tracks', {
-        preserveScroll: true,
-        onSuccess: () => {
-            trackForm.reset();
-            showCreateTrack.value = false;
-        },
-    });
+function openCreateTrackDialog() {
+    editingTrack.value = null;
+    trackDialogOpen.value = true;
 }
 
-// Edit track inline
-const editingTrackId = ref<number | null>(null);
-const editTrackForm = useForm({
-    name: '',
-    code: '',
-});
-
-function startEditTrack(track: Track) {
-    editingTrackId.value = track.id;
-    editTrackForm.name = track.name;
-    editTrackForm.code = track.code;
-}
-
-function saveEditTrack(trackId: number) {
-    editTrackForm.put(`/curriculum/tracks/${trackId}`, {
-        preserveScroll: true,
-        onSuccess: () => {
-            editingTrackId.value = null;
-            editTrackForm.reset();
-        },
-    });
-}
-
-function cancelEditTrack() {
-    editingTrackId.value = null;
-    editTrackForm.reset();
-    editTrackForm.clearErrors();
+function openEditTrackDialog(track: Track) {
+    editingTrack.value = track;
+    trackDialogOpen.value = true;
 }
 
 // Toggle track active status
@@ -93,54 +62,30 @@ function toggleTrackActive(trackId: number, currentState: boolean) {
     router.put(
         `/curriculum/tracks/${trackId}/toggle-active`,
         { is_active: !currentState },
-        { preserveScroll: true },
+        {
+            preserveScroll: true,
+            onSuccess: (page) => {
+                page.props.flash = {};
+                toast.success(`Track ${currentState ? 'deactivated' : 'activated'} successfully.`);
+            },
+        },
     );
 }
 
-// Create strand form
-const showCreateStrandFor = ref<number | null>(null);
-const strandForm = useForm({
-    name: '',
-    code: '',
-});
+// Strand dialog state
+const strandDialogOpen = ref(false);
+const editingStrand = ref<Strand | null>(null);
+const strandParentTrackId = ref<number | undefined>(undefined);
 
-function createStrand(trackId: number) {
-    strandForm.transform((data) => ({ ...data, track_id: trackId })).post('/curriculum/strands', {
-        preserveScroll: true,
-        onSuccess: () => {
-            strandForm.reset();
-            showCreateStrandFor.value = null;
-        },
-    });
+function openCreateStrandDialog(trackId: number) {
+    editingStrand.value = null;
+    strandParentTrackId.value = trackId;
+    strandDialogOpen.value = true;
 }
 
-// Edit strand inline
-const editingStrandId = ref<number | null>(null);
-const editStrandForm = useForm({
-    name: '',
-    code: '',
-});
-
-function startEditStrand(strand: { id: number; name: string; code: string }) {
-    editingStrandId.value = strand.id;
-    editStrandForm.name = strand.name;
-    editStrandForm.code = strand.code;
-}
-
-function saveEditStrand(strandId: number) {
-    editStrandForm.put(`/curriculum/strands/${strandId}`, {
-        preserveScroll: true,
-        onSuccess: () => {
-            editingStrandId.value = null;
-            editStrandForm.reset();
-        },
-    });
-}
-
-function cancelEditStrand() {
-    editingStrandId.value = null;
-    editStrandForm.reset();
-    editStrandForm.clearErrors();
+function openEditStrandDialog(strand: Strand) {
+    editingStrand.value = strand;
+    strandDialogOpen.value = true;
 }
 
 // Toggle strand active status
@@ -148,7 +93,13 @@ function toggleStrandActive(strandId: number, currentState: boolean) {
     router.put(
         `/curriculum/strands/${strandId}/toggle-active`,
         { is_active: !currentState },
-        { preserveScroll: true },
+        {
+            preserveScroll: true,
+            onSuccess: (page) => {
+                page.props.flash = {};
+                toast.success(`Strand ${currentState ? 'deactivated' : 'activated'} successfully.`);
+            },
+        },
     );
 }
 </script>
@@ -163,65 +114,12 @@ function toggleStrandActive(strandId: number, currentState: boolean) {
                 description="Manage academic tracks and their strands."
             >
                 <template #actions>
-                    <Button @click="showCreateTrack = !showCreateTrack">
+                    <Button @click="openCreateTrackDialog">
                         <Plus class="mr-2 size-4" />
                         Add Track
                     </Button>
                 </template>
             </PageHeader>
-
-            <!-- Create Track Form -->
-            <Card v-if="showCreateTrack">
-                <CardHeader>
-                    <CardTitle>New Track</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <form
-                        class="flex items-end gap-4"
-                        @submit.prevent="createTrack"
-                    >
-                        <div class="flex-1 space-y-2">
-                            <Label for="track_name">Name</Label>
-                            <Input
-                                id="track_name"
-                                v-model="trackForm.name"
-                                type="text"
-                                placeholder="e.g. Academic Track"
-                            />
-                            <InputError :message="trackForm.errors.name" />
-                        </div>
-                        <div class="w-40 space-y-2">
-                            <Label for="track_code">Code</Label>
-                            <Input
-                                id="track_code"
-                                v-model="trackForm.code"
-                                type="text"
-                                placeholder="e.g. ACAD"
-                            />
-                            <InputError :message="trackForm.errors.code" />
-                        </div>
-                        <div class="flex gap-2">
-                            <Button
-                                type="submit"
-                                :disabled="trackForm.processing"
-                            >
-                                Create
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                @click="
-                                    showCreateTrack = false;
-                                    trackForm.reset();
-                                    trackForm.clearErrors();
-                                "
-                            >
-                                <X class="size-4" />
-                            </Button>
-                        </div>
-                    </form>
-                </CardContent>
-            </Card>
 
             <!-- Tracks List -->
             <div v-if="tracks.length === 0" class="py-12 text-center text-muted-foreground">
@@ -232,9 +130,7 @@ function toggleStrandActive(strandId: number, currentState: boolean) {
                 <Card v-for="track in tracks" :key="track.id">
                     <CardHeader>
                         <div class="flex items-center justify-between">
-                            <!-- Track Info / Edit -->
                             <div
-                                v-if="editingTrackId !== track.id"
                                 class="flex cursor-pointer items-center gap-3"
                                 @click="toggleTrack(track.id)"
                             >
@@ -258,56 +154,12 @@ function toggleStrandActive(strandId: number, currentState: boolean) {
                                 </div>
                             </div>
 
-                            <!-- Inline Edit Track -->
-                            <form
-                                v-else
-                                class="flex flex-1 items-end gap-4"
-                                @submit.prevent="saveEditTrack(track.id)"
-                            >
-                                <div class="flex-1 space-y-2">
-                                    <Label>Name</Label>
-                                    <Input
-                                        v-model="editTrackForm.name"
-                                        type="text"
-                                    />
-                                    <InputError :message="editTrackForm.errors.name" />
-                                </div>
-                                <div class="w-40 space-y-2">
-                                    <Label>Code</Label>
-                                    <Input
-                                        v-model="editTrackForm.code"
-                                        type="text"
-                                    />
-                                    <InputError :message="editTrackForm.errors.code" />
-                                </div>
-                                <div class="flex gap-2">
-                                    <Button
-                                        type="submit"
-                                        size="sm"
-                                        :disabled="editTrackForm.processing"
-                                    >
-                                        Save
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        @click="cancelEditTrack"
-                                    >
-                                        Cancel
-                                    </Button>
-                                </div>
-                            </form>
-
                             <!-- Track Actions -->
-                            <div
-                                v-if="editingTrackId !== track.id"
-                                class="flex items-center gap-2"
-                            >
+                            <div class="flex items-center gap-2">
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    @click.stop="startEditTrack(track)"
+                                    @click.stop="openEditTrackDialog(track)"
                                 >
                                     <Edit2 class="size-4" />
                                 </Button>
@@ -331,7 +183,7 @@ function toggleStrandActive(strandId: number, currentState: boolean) {
                     <!-- Expanded Strands Section -->
                     <CardContent v-show="expandedTracks.has(track.id)">
                         <div class="space-y-4">
-                            <!-- Add Strand Button & Form -->
+                            <!-- Add Strand Button -->
                             <div class="flex items-center justify-between">
                                 <h4 class="text-sm font-semibold text-muted-foreground">
                                     Strands
@@ -339,67 +191,11 @@ function toggleStrandActive(strandId: number, currentState: boolean) {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    @click="
-                                        showCreateStrandFor =
-                                            showCreateStrandFor === track.id
-                                                ? null
-                                                : track.id
-                                    "
+                                    @click="openCreateStrandDialog(track.id)"
                                 >
                                     <Plus class="mr-1 size-3" />
                                     Add Strand
                                 </Button>
-                            </div>
-
-                            <!-- Inline Create Strand Form -->
-                            <div
-                                v-if="showCreateStrandFor === track.id"
-                                class="rounded-lg border p-4"
-                            >
-                                <form
-                                    class="flex items-end gap-4"
-                                    @submit.prevent="createStrand(track.id)"
-                                >
-                                    <div class="flex-1 space-y-2">
-                                        <Label>Strand Name</Label>
-                                        <Input
-                                            v-model="strandForm.name"
-                                            type="text"
-                                            placeholder="e.g. Science, Technology, Engineering, and Mathematics"
-                                        />
-                                        <InputError :message="strandForm.errors.name" />
-                                    </div>
-                                    <div class="w-40 space-y-2">
-                                        <Label>Code</Label>
-                                        <Input
-                                            v-model="strandForm.code"
-                                            type="text"
-                                            placeholder="e.g. STEM"
-                                        />
-                                        <InputError :message="strandForm.errors.code" />
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <Button
-                                            type="submit"
-                                            size="sm"
-                                            :disabled="strandForm.processing"
-                                        >
-                                            Create
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            @click="
-                                                showCreateStrandFor = null;
-                                                strandForm.reset();
-                                                strandForm.clearErrors();
-                                            "
-                                        >
-                                            <X class="size-4" />
-                                        </Button>
-                                    </div>
-                                </form>
                             </div>
 
                             <!-- Strands Table -->
@@ -422,84 +218,40 @@ function toggleStrandActive(strandId: number, currentState: boolean) {
                                             v-for="strand in track.strands"
                                             :key="strand.id"
                                         >
-                                            <!-- Name / Inline Edit -->
-                                            <template v-if="editingStrandId === strand.id">
-                                                <TableCell>
-                                                    <div class="space-y-1">
-                                                        <Input
-                                                            v-model="editStrandForm.name"
-                                                            type="text"
-                                                            class="h-8"
-                                                        />
-                                                        <InputError :message="editStrandForm.errors.name" />
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div class="space-y-1">
-                                                        <Input
-                                                            v-model="editStrandForm.code"
-                                                            type="text"
-                                                            class="h-8"
-                                                        />
-                                                        <InputError :message="editStrandForm.errors.code" />
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell colspan="2" />
-                                                <TableCell class="text-right">
-                                                    <div class="flex items-center justify-end gap-2">
-                                                        <Button
-                                                            size="sm"
-                                                            :disabled="editStrandForm.processing"
-                                                            @click="saveEditStrand(strand.id)"
-                                                        >
-                                                            Save
-                                                        </Button>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            @click="cancelEditStrand"
-                                                        >
-                                                            Cancel
-                                                        </Button>
-                                                    </div>
-                                                </TableCell>
-                                            </template>
-                                            <template v-else>
-                                                <TableCell class="font-medium">
-                                                    {{ strand.name }}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant="outline">{{ strand.code }}</Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge
-                                                        :variant="strand.is_active ? 'default' : 'secondary'"
+                                            <TableCell class="font-medium">
+                                                {{ strand.name }}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge variant="outline">{{ strand.code }}</Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    :variant="strand.is_active ? 'default' : 'secondary'"
+                                                >
+                                                    {{ strand.is_active ? 'Active' : 'Inactive' }}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div class="flex items-center gap-1">
+                                                    <Layers class="size-3 text-muted-foreground" />
+                                                    {{ (strand as any).subjects_count ?? strand.subjects?.length ?? 0 }}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell class="text-right">
+                                                <div class="flex items-center justify-end gap-2">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        @click="openEditStrandDialog(strand)"
                                                     >
-                                                        {{ strand.is_active ? 'Active' : 'Inactive' }}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div class="flex items-center gap-1">
-                                                        <Layers class="size-3 text-muted-foreground" />
-                                                        {{ (strand as any).subjects_count ?? strand.subjects?.length ?? 0 }}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell class="text-right">
-                                                    <div class="flex items-center justify-end gap-2">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            @click="startEditStrand(strand)"
-                                                        >
-                                                            <Edit2 class="size-3" />
-                                                        </Button>
-                                                        <Switch
-                                                            :checked="strand.is_active"
-                                                            @update:checked="toggleStrandActive(strand.id, strand.is_active)"
-                                                        />
-                                                    </div>
-                                                </TableCell>
-                                            </template>
+                                                        <Edit2 class="size-3" />
+                                                    </Button>
+                                                    <Switch
+                                                        :checked="strand.is_active"
+                                                        @update:checked="toggleStrandActive(strand.id, strand.is_active)"
+                                                    />
+                                                </div>
+                                            </TableCell>
                                         </TableRow>
                                     </TableBody>
                                 </Table>
@@ -516,5 +268,16 @@ function toggleStrandActive(strandId: number, currentState: boolean) {
                 </Card>
             </div>
         </div>
+
+        <TrackFormDialog
+            v-model:open="trackDialogOpen"
+            :track="editingTrack"
+        />
+
+        <StrandFormDialog
+            v-model:open="strandDialogOpen"
+            :strand="editingStrand"
+            :track-id="strandParentTrackId"
+        />
     </AppLayout>
 </template>

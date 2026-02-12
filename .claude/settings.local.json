@@ -19,7 +19,11 @@
       "Bash(npm run build:*)",
       "Bash(composer show:*)",
       "Bash(ls:*)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "WebSearch",
+      "WebFetch(domain:unsplash.com)",
+      "WebFetch(domain:pixabay.com)",
+      "Bash(npm install:*)"
     ]
   }
 }

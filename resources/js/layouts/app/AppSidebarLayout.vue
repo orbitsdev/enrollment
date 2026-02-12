@@ -18,7 +18,7 @@ withDefaults(defineProps<Props>(), {
 });
 
 const page = usePage();
-const pageKey = computed(() => page.url);
+const pageKey = computed(() => page.url.split('?')[0]);
 </script>
 
 <template>

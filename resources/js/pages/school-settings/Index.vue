@@ -47,7 +47,7 @@ function submit() {
             />
 
             <form
-                class="mx-auto w-full max-w-3xl space-y-6"
+                class="w-full space-y-6"
                 @submit.prevent="submit"
             >
                 <!-- School Info Card -->

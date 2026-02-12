@@ -8,6 +8,8 @@ use App\Enums\EnrollmentStatus;
 use App\Enums\StudentStatus;
 use App\Exports\ClassListExport;
 use App\Exports\EnrollmentSummaryExport;
+use App\Exports\SF1SchoolRegisterExport;
+use App\Exports\SF5PromotionReportExport;
 use App\Exports\StudentMasterlistExport;
 use App\Models\Enrollment;
 use App\Models\Grade;
@@ -81,9 +83,9 @@ class ReportController extends Controller
         }
 
         return Inertia::render('reports/EnrollmentSummary', [
-            'school_years' => $schoolYears,
-            'selected_semester' => $semester,
-            'report_data' => $data,
+            'school_years' => fn () => $schoolYears,
+            'selected_semester' => fn () => $semester,
+            'report_data' => fn () => $data,
             'filters' => $request->only(['semester_id']),
         ]);
     }
@@ -295,5 +297,31 @@ class ReportController extends Controller
         $action = new GenerateSF10();
 
         return $action->handle($student);
+    }
+
+    /**
+     * Generate SF1 (School Register) Excel.
+     */
+    public function generateSF1(Section $section): BinaryFileResponse
+    {
+        $section->load('strand');
+
+        return Excel::download(
+            new SF1SchoolRegisterExport($section),
+            'SF1-' . $section->name . '-' . now()->format('Ymd') . '.xlsx'
+        );
+    }
+
+    /**
+     * Generate SF5 (Promotion Report) Excel.
+     */
+    public function generateSF5(Section $section): BinaryFileResponse
+    {
+        $section->load('strand');
+
+        return Excel::download(
+            new SF5PromotionReportExport($section),
+            'SF5-' . $section->name . '-' . now()->format('Ymd') . '.xlsx'
+        );
     }
 }

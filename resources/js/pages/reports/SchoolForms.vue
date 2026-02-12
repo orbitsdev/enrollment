@@ -5,7 +5,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { type BreadcrumbItem, type Section, type Enrollment } from '@/types';
-import { FileText, Download } from 'lucide-vue-next';
+import { FileText, Download, FileSpreadsheet } from 'lucide-vue-next';
 
 const props = defineProps<{
     sections: Section[];
@@ -30,6 +30,18 @@ function applyFilter() {
     });
 }
 
+function downloadSF1() {
+    if (sectionId.value) {
+        window.location.href = `/reports/generate/sf1/${sectionId.value}`;
+    }
+}
+
+function downloadSF5() {
+    if (sectionId.value) {
+        window.location.href = `/reports/generate/sf5/${sectionId.value}`;
+    }
+}
+
 function downloadSF9(enrollmentId: number) {
     window.location.href = `/reports/generate/sf9/${enrollmentId}`;
 }
@@ -46,11 +58,37 @@ function downloadSF10(studentId: number) {
         <div class="p-4 md:p-6">
             <div class="mb-6">
                 <h1 class="text-2xl font-bold tracking-tight">School Forms</h1>
-                <p class="text-muted-foreground">Generate official DepEd school forms (SF9, SF10).</p>
+                <p class="text-muted-foreground">Generate official DepEd school forms (SF1, SF5, SF9, SF10).</p>
             </div>
 
             <!-- Info Cards -->
-            <div class="mb-6 grid gap-4 sm:grid-cols-2">
+            <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Card>
+                    <CardHeader>
+                        <div class="flex items-center gap-3">
+                            <FileSpreadsheet class="h-5 w-5 text-orange-600" />
+                            <CardTitle class="text-base">SF1 - School Register</CardTitle>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <CardDescription>
+                            School Register listing all enrolled learners per section. Exported as Excel per section.
+                        </CardDescription>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <div class="flex items-center gap-3">
+                            <FileSpreadsheet class="h-5 w-5 text-purple-600" />
+                            <CardTitle class="text-base">SF5 - Promotion Report</CardTitle>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <CardDescription>
+                            Report on Promotion and Level of Proficiency per section. Shows grades, averages, and promotion status.
+                        </CardDescription>
+                    </CardContent>
+                </Card>
                 <Card>
                     <CardHeader>
                         <div class="flex items-center gap-3">
@@ -102,12 +140,33 @@ function downloadSF10(studentId: number) {
                 </CardContent>
             </Card>
 
-            <!-- Student List with Form Generation -->
+            <!-- Section-Level Forms (SF1 & SF5) -->
+            <Card v-if="sectionId" class="mb-6">
+                <CardHeader>
+                    <CardTitle class="text-base">Section-Level Forms</CardTitle>
+                    <CardDescription>These forms are generated for the entire section.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div class="flex flex-wrap gap-3">
+                        <Button variant="outline" @click="downloadSF1">
+                            <Download class="mr-2 h-4 w-4" />
+                            Download SF1 - School Register
+                        </Button>
+                        <Button variant="outline" @click="downloadSF5">
+                            <Download class="mr-2 h-4 w-4" />
+                            Download SF5 - Promotion Report
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <!-- Student List with Form Generation (SF9 & SF10) -->
             <Card v-if="enrollments.length > 0">
                 <CardHeader>
                     <CardTitle class="text-base">
-                        Students ({{ enrollments.length }})
+                        Per-Student Forms ({{ enrollments.length }} students)
                     </CardTitle>
+                    <CardDescription>SF9 and SF10 are generated per individual student.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div class="overflow-x-auto">

@@ -9,19 +9,20 @@ import SectionFormDialog from '@/components/App/SectionFormDialog.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
-import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Section, Semester, Strand, User } from '@/types';
 
@@ -173,50 +174,66 @@ function onGradeLevelChange(value: string) {
                 </Select>
             </div>
 
-            <!-- Section Cards Grid -->
-            <div v-if="sections.length > 0" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <Card v-for="section in sections" :key="section.id">
-                    <CardHeader class="pb-3">
-                        <div class="flex items-start justify-between">
-                            <CardTitle class="text-lg">{{ section.name }}</CardTitle>
-                            <Badge variant="outline">
-                                {{ section.strand?.code ?? '--' }}
-                            </Badge>
-                        </div>
-                        <div class="flex items-center gap-2 text-sm text-muted-foreground">
-                            <span>Grade {{ section.grade_level }}</span>
-                            <span class="text-muted-foreground/50">|</span>
-                            <span>{{ section.semester?.label ?? `Sem ${section.semester?.number}` }}</span>
-                        </div>
-                    </CardHeader>
-                    <CardContent class="space-y-3">
-                        <div class="flex items-center gap-2 text-sm">
-                            <Users class="size-4 text-muted-foreground" />
-                            <span>Adviser: {{ section.adviser?.name ?? 'Not assigned' }}</span>
-                        </div>
-                        <CapacityBar
-                            :current="section.enrolled_count ?? 0"
-                            :max="section.max_capacity"
-                        />
-                    </CardContent>
-                    <CardFooter class="flex gap-2 border-t pt-4">
-                        <Button variant="outline" size="sm" class="flex-1" as-child>
-                            <Link :href="`/sections/${section.id}`" prefetch>
-                                <Eye class="size-4" />
-                                View Roster
-                            </Link>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            class="flex-1"
-                            @click="openEditDialog(section)"
-                        >
-                            <Pencil class="size-4" />
-                            Edit
-                        </Button>
-                    </CardFooter>
-                </Card>
+            <!-- Sections Table -->
+            <div v-if="sections.length > 0" class="rounded-md border">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Section Name</TableHead>
+                            <TableHead>Strand</TableHead>
+                            <TableHead>Grade Level</TableHead>
+                            <TableHead>Semester</TableHead>
+                            <TableHead>Adviser</TableHead>
+                            <TableHead>Capacity</TableHead>
+                            <TableHead class="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow v-for="section in sections" :key="section.id">
+                            <TableCell class="font-medium">
+                                {{ section.name }}
+                            </TableCell>
+                            <TableCell>
+                                <Badge variant="outline">
+                                    {{ section.strand?.code ?? '--' }}
+                                </Badge>
+                            </TableCell>
+                            <TableCell>
+                                Grade {{ section.grade_level }}
+                            </TableCell>
+                            <TableCell>
+                                {{ section.semester?.label ?? `Sem ${section.semester?.number}` }}
+                            </TableCell>
+                            <TableCell>
+                                {{ section.adviser?.name ?? 'Not assigned' }}
+                            </TableCell>
+                            <TableCell class="min-w-[160px]">
+                                <CapacityBar
+                                    :current="section.enrolled_count ?? 0"
+                                    :max="section.max_capacity"
+                                />
+                            </TableCell>
+                            <TableCell class="text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <Button variant="outline" size="sm" as-child>
+                                        <Link :href="`/sections/${section.id}`" prefetch>
+                                            <Eye class="size-4" />
+                                            View Roster
+                                        </Link>
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        @click="openEditDialog(section)"
+                                    >
+                                        <Pencil class="size-4" />
+                                        Edit
+                                    </Button>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
             </div>
 
             <!-- Empty state -->

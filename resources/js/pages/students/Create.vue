@@ -2,6 +2,7 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { AlertTriangle, Check, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import { ref } from 'vue';
+import ConfirmDialog from '@/components/App/ConfirmDialog.vue';
 import PageHeader from '@/components/App/PageHeader.vue';
 import { useUnsavedChangesGuard } from '@/composables/useUnsavedChangesGuard';
 import InputError from '@/components/InputError.vue';
@@ -65,6 +66,7 @@ const steps = [
 
 const duplicates = ref<Array<{ id: number; lrn: string; full_name: string }>>([]);
 const checkingDuplicates = ref(false);
+const showConfirm = ref(false);
 
 async function checkDuplicates() {
     if (!form.last_name || !form.first_name || !form.birthdate) return;
@@ -123,6 +125,9 @@ function prevStep() {
 function submit() {
     form.post('/students', {
         preserveScroll: true,
+        onError: () => {
+            showConfirm.value = false;
+        },
     });
 }
 </script>
@@ -471,8 +476,9 @@ function submit() {
                             </Button>
                             <Button
                                 v-else
-                                type="submit"
+                                type="button"
                                 :disabled="form.processing"
+                                @click="showConfirm = true"
                             >
                                 Create Student
                             </Button>
@@ -481,5 +487,15 @@ function submit() {
                 </form>
             </div>
         </div>
+
+        <ConfirmDialog
+            :open="showConfirm"
+            title="Confirm Student Registration"
+            description="Please verify all information is correct before registering this student."
+            confirm-text="Register Student"
+            :processing="form.processing"
+            @confirm="submit"
+            @cancel="showConfirm = false"
+        />
     </AppLayout>
 </template>

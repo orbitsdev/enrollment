@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Plus } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import ConfirmDialog from '@/components/App/ConfirmDialog.vue';
 import DataTable from '@/components/App/DataTable.vue';
 import PageHeader from '@/components/App/PageHeader.vue';
@@ -45,20 +45,21 @@ const columns = [
 const search = ref(props.filters.search ?? '');
 const roleFilter = ref(props.filters.role ?? '');
 
+const searchExtraData = computed(() => ({
+    role: roleFilter.value || undefined,
+}));
+
 function onRoleChange(value: string) {
     roleFilter.value = value === 'all' ? '' : value;
-    router.get(
-        '/users',
-        {
+    router.reload({
+        data: {
             search: search.value || undefined,
             role: roleFilter.value || undefined,
         },
-        {
-            preserveState: true,
-            preserveScroll: true,
-            only: ['users'],
-        },
-    );
+        only: ['users', 'filters'],
+        preserveState: true,
+        preserveScroll: true,
+    });
 }
 
 // Dialog state
@@ -124,7 +125,8 @@ function executeToggle() {
                 <SearchInput
                     v-model="search"
                     placeholder="Search users..."
-                    :only="['users']"
+                    :only="['users', 'filters']"
+                    :extra-data="searchExtraData"
                 />
                 <Select
                     :model-value="roleFilter || 'all'"

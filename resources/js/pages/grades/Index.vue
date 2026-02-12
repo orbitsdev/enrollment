@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
-import { BookOpen, CheckCircle } from 'lucide-vue-next';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { BookOpen, CalendarDays, CheckCircle } from 'lucide-vue-next';
 import { computed } from 'vue';
 import PageHeader from '@/components/App/PageHeader.vue';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +30,9 @@ const props = defineProps<{
     sections: SectionWithGradeInfo[];
 }>();
 
+const page = usePage();
+const activeSemester = computed(() => page.props.activeSemester as { full_label: string } | null);
+
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Grades' },
@@ -58,6 +61,19 @@ function sectionOverallCompletion(section: SectionWithGradeInfo): number {
                 title="Grades"
                 description="Manage and enter student grades by section and subject."
             />
+
+            <!-- Active Semester Context -->
+            <div class="rounded-lg border bg-muted/50 px-4 py-3">
+                <div class="flex items-center gap-2 text-sm">
+                    <CalendarDays class="size-4 text-muted-foreground" />
+                    <span class="font-medium">
+                        {{ activeSemester?.full_label ?? 'No active semester' }}
+                    </span>
+                    <span class="text-muted-foreground">
+                        — Showing sections and grades for this semester.
+                    </span>
+                </div>
+            </div>
 
             <!-- Section Cards Grid -->
             <div v-if="sections.length > 0" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

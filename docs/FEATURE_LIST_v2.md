@@ -220,22 +220,6 @@ POST /grades/batch
 
 ---
 
-## Module 11: Graph Analytics (Capstone Only) 🟡 Medium
-
-> Downgraded from 🔴 Hard to 🟡 Medium. It's medium because of the ONgDB learning curve, not because the logic is complex. The queries themselves are simple once you learn Cypher syntax.
-
-| # | Feature | What It Does | Difficulty |
-|---|---|---|---|
-| 11.1 | Data Sync | When enrollment is saved, mirror nodes + relationships to ONgDB | 🟡 Medium — Laravel event listener that writes to ONgDB via HTTP API |
-| 11.2 | Graph Queries | 3 Cypher queries: curriculum path, prerequisite chain, section load | 🟡 Medium — learning Cypher is the only new thing |
-| 11.3 | Graph Visualization | One page with a D3.js graph diagram showing student → subject → strand relationships | 🟡 Medium — D3.js force-directed graph, feed it JSON from ONgDB query |
-
-**Pages:** `/graph-analytics` (admin only, one page)
-
-**Total: 3 features. This is an analytics overlay — remove it entirely and the system still works. It exists for the thesis defense.**
-
----
-
 ## Feature Count Summary v2
 
 | Module | Features | v1 Difficulty | v2 Difficulty (Honest) | Why Changed |
@@ -250,16 +234,15 @@ POST /grades/batch
 | Reports & Dashboard | 9 | 🟡 Medium | 🟡 Medium | Expanded to list each DepEd form separately |
 | Data Import | 3 | 🟡 Medium | 🟡 Medium | Same — preview UI is the work |
 | System Settings | 3 | 🟢 Easy | 🟢 Easy | Same |
-| Graph Analytics | 3 | 🔴 Hard | 🟡 Medium | It's 3 Cypher queries + one D3.js page, not a full graph engine |
-| **TOTAL** | **48** | | | |
+| **TOTAL** | **45** | | | |
 
 ---
 
 ## Difficulty Distribution
 
 ```
-🟢 Easy:    24 features  (50%)  — standard Laravel CRUD
-🟡 Medium:  24 features  (50%)  — needs extra UI work or data logic
+🟢 Easy:    24 features  (53%)  — standard Laravel CRUD
+🟡 Medium:  21 features  (47%)  — needs extra UI work or data logic
 🔴 Hard:     0 features  ( 0%)  — nothing is actually hard when you don't over-engineer
 ```
 
@@ -281,4 +264,3 @@ POST /grades/batch
 | 8th | Grades | 4 | Needed for reports and prerequisite checking |
 | 9th | Reports & Dashboard | 9 | Consumes all the data from above |
 | 10th | Data Import | 3 | For migrating existing records |
-| 11th | Graph Analytics | 3 | Capstone layer — last because it's optional |

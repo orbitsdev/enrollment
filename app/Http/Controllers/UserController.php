@@ -37,12 +37,12 @@ class UserController extends Controller
         $users = $query->latest()->paginate(10)->withQueryString();
 
         return Inertia::render('users/Index', [
-            'users' => $users,
+            'users' => fn () => $users,
             'filters' => [
                 'search' => request('search', ''),
                 'role' => request('role', ''),
             ],
-            'roles' => collect(UserRole::cases())->map(fn ($role) => [
+            'roles' => fn () => collect(UserRole::cases())->map(fn ($role) => [
                 'value' => $role->value,
                 'label' => $role->label(),
             ]),
@@ -75,7 +75,7 @@ class UserController extends Controller
 
         $user->assignRole($request->role);
 
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+        return redirect()->back()->with('success', 'User created successfully.');
     }
 
     /**
@@ -112,7 +112,7 @@ class UserController extends Controller
         $user->update($data);
         $user->syncRoles([$request->role]);
 
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        return redirect()->back()->with('success', 'User updated successfully.');
     }
 
     /**
