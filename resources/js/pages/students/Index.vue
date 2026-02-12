@@ -137,16 +137,16 @@ function onStatusChange(value: string) {
 
             <!-- Pagination -->
             <div
-                v-if="students.meta.last_page > 1"
+                v-if="students.last_page > 1"
                 class="flex items-center justify-between"
             >
                 <p class="text-sm text-muted-foreground">
-                    Showing {{ students.meta.from }} to {{ students.meta.to }} of
-                    {{ students.meta.total }} results
+                    Showing {{ students.from }} to {{ students.to }} of
+                    {{ students.total }} results
                 </p>
                 <div class="flex items-center gap-2">
                     <Button
-                        v-for="link in students.meta.links"
+                        v-for="link in students.links"
                         :key="link.label"
                         variant="outline"
                         size="sm"

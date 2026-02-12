@@ -116,7 +116,19 @@ class UserController extends Controller
     }
 
     /**
-     * Toggle the active status of the specified user (soft deactivate).
+     * Toggle the active status of the specified user.
+     */
+    public function toggleActive(User $user): RedirectResponse
+    {
+        $user->update(['is_active' => !$user->is_active]);
+
+        $status = $user->is_active ? 'activated' : 'deactivated';
+
+        return redirect()->back()->with('success', "User {$status} successfully.");
+    }
+
+    /**
+     * Remove the specified user.
      */
     public function destroy(User $user): RedirectResponse
     {

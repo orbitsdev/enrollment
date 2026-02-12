@@ -27,6 +27,7 @@ Route::get('dashboard', DashboardController::class)->middleware(['auth', 'verifi
 
 // Admin only
 Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::put('users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggle-active');
     Route::resource('users', UserController::class);
 
     // School settings

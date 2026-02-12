@@ -52,11 +52,6 @@ class DashboardController extends Controller
                 }
 
                 return Track::query()
-                    ->withCount(['strands as enrolled_count' => function ($query) use ($activeSemester) {
-                        $query->whereHas('sections', function ($q) use ($activeSemester) {
-                            $q->where('semester_id', $activeSemester->id);
-                        })->select(\Illuminate\Support\Facades\DB::raw('count(*)'));
-                    }])
                     ->get()
                     ->mapWithKeys(function ($track) use ($activeSemester) {
                         $count = Enrollment::where('status', EnrollmentStatus::Enrolled)

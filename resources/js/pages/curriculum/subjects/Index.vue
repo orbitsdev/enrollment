@@ -186,16 +186,16 @@ function onStrandChange(value: string) {
 
             <!-- Pagination -->
             <div
-                v-if="subjects.meta.last_page > 1"
+                v-if="subjects.last_page > 1"
                 class="flex items-center justify-between"
             >
                 <p class="text-sm text-muted-foreground">
-                    Showing {{ subjects.meta.from }} to {{ subjects.meta.to }} of
-                    {{ subjects.meta.total }} results
+                    Showing {{ subjects.from }} to {{ subjects.to }} of
+                    {{ subjects.total }} results
                 </p>
                 <div class="flex items-center gap-2">
                     <Button
-                        v-for="link in subjects.meta.links"
+                        v-for="link in subjects.links"
                         :key="link.label"
                         variant="outline"
                         size="sm"

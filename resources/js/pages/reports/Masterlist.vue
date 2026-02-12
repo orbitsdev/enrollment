@@ -112,7 +112,7 @@ function statusColor(s: string): 'default' | 'secondary' | 'destructive' | 'outl
             <Card>
                 <CardHeader>
                     <CardTitle class="text-base">
-                        Students ({{ students.meta.total }} total)
+                        Students ({{ students.total }} total)
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -153,13 +153,13 @@ function statusColor(s: string): 'default' | 'secondary' | 'destructive' | 'outl
                     </div>
 
                     <!-- Pagination -->
-                    <div v-if="students.meta.last_page > 1" class="mt-4 flex items-center justify-between">
+                    <div v-if="students.last_page > 1" class="mt-4 flex items-center justify-between">
                         <p class="text-sm text-muted-foreground">
-                            Showing {{ students.meta.from }} to {{ students.meta.to }} of {{ students.meta.total }}
+                            Showing {{ students.from }} to {{ students.to }} of {{ students.total }}
                         </p>
                         <div class="flex gap-1">
                             <Button
-                                v-for="link in students.meta.links"
+                                v-for="link in students.links"
                                 :key="link.label"
                                 variant="outline"
                                 size="sm"

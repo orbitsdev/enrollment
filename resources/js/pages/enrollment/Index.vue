@@ -197,16 +197,16 @@ function formatDate(dateStr: string | null): string {
 
             <!-- Pagination -->
             <div
-                v-if="enrollments.meta.last_page > 1"
+                v-if="enrollments.last_page > 1"
                 class="flex items-center justify-between"
             >
                 <p class="text-sm text-muted-foreground">
-                    Showing {{ enrollments.meta.from }} to {{ enrollments.meta.to }} of
-                    {{ enrollments.meta.total }} results
+                    Showing {{ enrollments.from }} to {{ enrollments.to }} of
+                    {{ enrollments.total }} results
                 </p>
                 <div class="flex items-center gap-2">
                     <Button
-                        v-for="link in enrollments.meta.links"
+                        v-for="link in enrollments.links"
                         :key="link.label"
                         variant="outline"
                         size="sm"

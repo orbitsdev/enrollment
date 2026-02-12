@@ -33,7 +33,7 @@ class SectionController extends Controller
             $query->byGradeLevel((int) $gradeLevel);
         }
 
-        $sections = $query->latest()->paginate(15)->withQueryString();
+        $sections = $query->latest()->get();
 
         return Inertia::render('sections/Index', [
             'sections' => $sections,

@@ -168,16 +168,16 @@ function executeToggle() {
 
             <!-- Pagination -->
             <div
-                v-if="users.meta.last_page > 1"
+                v-if="users.last_page > 1"
                 class="flex items-center justify-between"
             >
                 <p class="text-sm text-muted-foreground">
-                    Showing {{ users.meta.from }} to {{ users.meta.to }} of
-                    {{ users.meta.total }} results
+                    Showing {{ users.from }} to {{ users.to }} of
+                    {{ users.total }} results
                 </p>
                 <div class="flex items-center gap-2">
                     <Button
-                        v-for="link in users.meta.links"
+                        v-for="link in users.links"
                         :key="link.label"
                         variant="outline"
                         size="sm"
