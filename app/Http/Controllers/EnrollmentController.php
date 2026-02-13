@@ -5,10 +5,16 @@ namespace App\Http\Controllers;
 use App\Enums\EnrollmentStatus;
 use App\Models\Enrollment;
 use App\Models\Grade;
+use App\Models\SchoolYear;
+use App\Models\Section;
 use App\Models\Semester;
+use App\Models\Strand;
+use App\Models\Student;
+use App\Models\Subject;
 use App\Models\Track;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -52,12 +58,24 @@ class EnrollmentController extends Controller
      */
     public function create(): Response
     {
+        $activeSemesterId = Semester::where('is_active', true)->value('id');
+
         return Inertia::render('enrollment/Create', [
             'tracks' => Track::with('strands')
                 ->where('is_active', true)
                 ->orderBy('sort_order')
                 ->get(),
             'activeSemester' => Semester::with('schoolYear')->where('is_active', true)->first(),
+            'setupChecklist' => [
+                'school_year' => SchoolYear::where('is_active', true)->exists(),
+                'semester' => Semester::where('is_active', true)->exists(),
+                'tracks' => Track::where('is_active', true)->exists(),
+                'strands' => Strand::where('is_active', true)->exists(),
+                'subjects' => Subject::where('is_active', true)->exists(),
+                'subject_mappings' => DB::table('subject_strand')->exists(),
+                'sections' => Section::where('semester_id', $activeSemesterId)->exists(),
+                'students' => Student::exists(),
+            ],
         ]);
     }
 

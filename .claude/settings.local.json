@@ -35,7 +35,10 @@
       "Bash(where:*)",
       "Bash(npm run dev:*)",
       "WebFetch(domain:www.shadcn-vue.com)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "Bash(while read f)",
+      "Bash(do grep -q \"RouteMetaDefinition.*from\" \"$f\")",
+      "Bash(echo:*)"
     ]
   }
 }

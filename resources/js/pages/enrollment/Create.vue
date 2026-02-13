@@ -5,6 +5,9 @@ import {
     Check,
     ChevronLeft,
     ChevronRight,
+    CircleCheck,
+    CircleX,
+    ExternalLink,
     Loader2,
     Search,
     UserPlus,
@@ -15,7 +18,7 @@ import PageHeader from '@/components/App/PageHeader.vue';
 import QuickStudentFormDialog from '@/components/App/QuickStudentFormDialog.vue';
 import StepIndicator from '@/components/App/StepIndicator.vue';
 import InputError from '@/components/InputError.vue';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -48,10 +51,39 @@ import type {
     Track,
 } from '@/types';
 
+interface SetupChecklist {
+    school_year: boolean;
+    semester: boolean;
+    tracks: boolean;
+    strands: boolean;
+    subjects: boolean;
+    subject_mappings: boolean;
+    sections: boolean;
+    students: boolean;
+}
+
 const props = defineProps<{
     tracks: Track[];
     activeSemester: Semester | null;
+    setupChecklist: SetupChecklist;
 }>();
+
+const checklistItems = computed(() => [
+    { key: 'school_year', label: 'Active School Year', link: '/school-years', required: true },
+    { key: 'semester', label: 'Active Semester', link: '/school-years', required: true },
+    { key: 'tracks', label: 'At least one Track', link: '/curriculum', required: true },
+    { key: 'strands', label: 'At least one Strand', link: '/curriculum', required: true },
+    { key: 'subjects', label: 'At least one Subject', link: '/subjects', required: true },
+    { key: 'subject_mappings', label: 'Subjects mapped to Strands', link: '/subjects', required: true },
+    { key: 'sections', label: 'Sections for active semester', link: '/sections', required: true },
+    { key: 'students', label: 'At least one Student', link: '/students', required: false },
+] as const);
+
+const requiredSetupReady = computed(() =>
+    checklistItems.value
+        .filter((item) => item.required)
+        .every((item) => props.setupChecklist[item.key]),
+);
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -341,12 +373,53 @@ function prevStep() {
                 </template>
             </PageHeader>
 
+            <!-- Setup Checklist -->
+            <div v-if="!requiredSetupReady" class="w-full">
+                <Alert class="border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950">
+                    <AlertTriangle class="size-4 text-amber-600 dark:text-amber-400" />
+                    <AlertTitle class="text-amber-800 dark:text-amber-200">Setup Required</AlertTitle>
+                    <AlertDescription>
+                        <p class="mb-3 text-sm text-amber-700 dark:text-amber-300">
+                            The following items must be configured before enrollment can proceed:
+                        </p>
+                        <ul class="space-y-2">
+                            <li
+                                v-for="item in checklistItems"
+                                :key="item.key"
+                                class="flex items-center gap-2 text-sm"
+                            >
+                                <CircleCheck
+                                    v-if="setupChecklist[item.key]"
+                                    class="size-4 shrink-0 text-green-600 dark:text-green-400"
+                                />
+                                <CircleX
+                                    v-else
+                                    class="size-4 shrink-0 text-red-500 dark:text-red-400"
+                                />
+                                <span :class="setupChecklist[item.key] ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'">
+                                    {{ item.label }}
+                                </span>
+                                <Badge v-if="!item.required" variant="outline" class="text-xs">Optional</Badge>
+                                <Link
+                                    v-if="!setupChecklist[item.key]"
+                                    :href="item.link"
+                                    class="ml-auto inline-flex items-center gap-1 text-xs font-medium text-amber-700 underline hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100"
+                                >
+                                    Set up
+                                    <ExternalLink class="size-3" />
+                                </Link>
+                            </li>
+                        </ul>
+                    </AlertDescription>
+                </Alert>
+            </div>
+
             <!-- Step Indicator -->
-            <div class="w-full px-4">
+            <div v-if="requiredSetupReady" class="w-full px-4">
                 <StepIndicator :steps="steps" :current-step="currentStep" />
             </div>
 
-            <div class="w-full">
+            <div v-if="requiredSetupReady" class="w-full">
                 <!-- ==================== STEP 1: FIND STUDENT ==================== -->
                 <div v-show="currentStep === 0">
                     <Card>
@@ -515,10 +588,20 @@ function prevStep() {
 
                                 <div class="space-y-2">
                                     <Label>Semester</Label>
-                                    <Input
-                                        :value="activeSemester?.full_label ?? activeSemester?.label ?? 'No active semester'"
-                                        disabled
-                                    />
+                                    <div
+                                        v-if="activeSemester"
+                                        class="flex h-9 items-center rounded-md border bg-muted/50 px-3 text-sm font-medium"
+                                    >
+                                        {{ activeSemester.full_label || activeSemester.label || `Semester ${activeSemester.number}` }}
+                                    </div>
+                                    <Alert v-else class="border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950">
+                                        <AlertTriangle class="size-4 text-amber-600" />
+                                        <AlertDescription class="text-sm text-amber-700 dark:text-amber-300">
+                                            No active semester found. An admin must activate a school year and semester in
+                                            <Link href="/school-years" class="font-medium underline">School Year settings</Link>
+                                            before enrollment can proceed.
+                                        </AlertDescription>
+                                    </Alert>
                                     <InputError :message="form.errors.semester_id" />
                                 </div>
                             </div>
@@ -598,9 +681,15 @@ function prevStep() {
                                 </div>
                             </div>
 
-                            <p v-else class="py-8 text-center text-muted-foreground">
-                                No subjects available for the selected strand, grade level, and semester.
-                            </p>
+                            <div v-else class="py-8 text-center">
+                                <p class="text-muted-foreground">
+                                    No subjects found for this strand/grade/semester combination.
+                                </p>
+                                <p class="mt-2 text-sm text-muted-foreground">
+                                    Make sure subjects are mapped to strands in the
+                                    <Link href="/subjects" class="font-medium text-primary underline">Subjects page</Link>.
+                                </p>
+                            </div>
 
                             <InputError :message="form.errors.subject_ids" class="mt-2" />
                         </CardContent>
@@ -658,9 +747,16 @@ function prevStep() {
                                 </div>
                             </RadioGroup>
 
-                            <p v-else class="py-8 text-center text-muted-foreground">
-                                No sections available for the selected strand, grade level, and semester.
-                            </p>
+                            <div v-else class="py-8 text-center">
+                                <p class="text-muted-foreground">
+                                    No sections exist for this strand/grade/semester.
+                                </p>
+                                <p class="mt-2 text-sm text-muted-foreground">
+                                    Create sections in the
+                                    <Link href="/sections" class="font-medium text-primary underline">Sections page</Link>
+                                    first.
+                                </p>
+                            </div>
 
                             <InputError :message="form.errors.section_id" class="mt-2" />
                         </CardContent>
