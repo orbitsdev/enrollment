@@ -30,7 +30,6 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
-import { dashboard } from '@/routes';
 import type { NavigationGroup } from '@/types';
 import AppLogo from './AppLogo.vue';
 
@@ -68,7 +67,7 @@ const navigationGroups = computed<NavigationGroup[]>(
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="dashboard()">
+                        <Link href="/dashboard">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>

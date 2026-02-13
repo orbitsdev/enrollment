@@ -51,6 +51,17 @@ class NavigationHelper
             ];
         }
 
+        // My Classes - teacher only
+        if ($role === 'teacher') {
+            $navigation[] = [
+                'label' => 'My Classes',
+                'items' => [
+                    ['title' => 'My Sections', 'href' => '/my/sections', 'icon' => 'LayoutList'],
+                    ['title' => 'My Students', 'href' => '/my/students', 'icon' => 'GraduationCap'],
+                ],
+            ];
+        }
+
         // Grades - admin, registrar, and teacher
         if (in_array($role, ['admin', 'registrar', 'teacher'])) {
             $navigation[] = [

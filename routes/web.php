@@ -16,6 +16,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentPortalController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\TeacherPortalController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -127,6 +128,12 @@ Route::middleware('auth')->prefix('api')->group(function () {
     Route::get('enrollment/subjects', [EnrollmentApiController::class, 'getSubjectLoad'])->name('api.enrollment.subjects');
     Route::match(['get', 'post'], 'enrollment/prerequisites', [EnrollmentApiController::class, 'checkPrerequisites'])->name('api.enrollment.prerequisites');
     Route::get('enrollment/sections', [EnrollmentApiController::class, 'getAvailableSections'])->name('api.enrollment.sections');
+});
+
+// Teacher Portal
+Route::middleware(['auth', 'role:teacher'])->prefix('my')->group(function () {
+    Route::get('sections', [TeacherPortalController::class, 'sections'])->name('my.sections');
+    Route::get('students', [TeacherPortalController::class, 'students'])->name('my.students');
 });
 
 // Student Portal
