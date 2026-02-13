@@ -179,3 +179,18 @@
 .page-leave-to {
     opacity: 0;
 }
+
+.slide-fade-enter-active {
+    transition: all 0.25s ease-out;
+}
+.slide-fade-leave-active {
+    transition: all 0.15s ease-in;
+}
+.slide-fade-enter-from {
+    opacity: 0;
+    transform: translateX(20px);
+}
+.slide-fade-leave-to {
+    opacity: 0;
+    transform: translateX(-20px);
+}

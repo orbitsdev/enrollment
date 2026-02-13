@@ -25,6 +25,7 @@ import {
     StepperTitle,
     StepperTrigger,
 } from '@/components/ui/stepper';
+import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { useUnsavedChangesGuard } from '@/composables/useUnsavedChangesGuard';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -119,7 +120,7 @@ function submit() {
                 </template>
             </PageHeader>
 
-            <div class="mx-auto w-full max-w-3xl">
+            <div class="mx-auto w-full max-w-7xl">
                 <!-- Stepper Header -->
                 <Stepper v-model="currentStep" class="mb-8 flex w-full items-start gap-2">
                     <StepperItem
@@ -163,7 +164,8 @@ function submit() {
 
                 <form @submit.prevent="submit">
                     <!-- Step 1: Personal Information -->
-                    <Card v-show="currentStep === 1">
+                    <Transition name="slide-fade" mode="out-in">
+                    <Card v-if="currentStep === 1" key="step1">
                         <CardContent class="space-y-4 pt-6">
                             <h3 class="text-lg font-semibold">Personal Information</h3>
                             <p class="text-sm text-muted-foreground">Basic student identity and demographics.</p>
@@ -239,6 +241,8 @@ function submit() {
                                 </div>
                             </div>
 
+                            <Separator />
+
                             <div class="space-y-2">
                                 <Label for="birthdate">Birthdate</Label>
                                 <Input
@@ -262,6 +266,8 @@ function submit() {
                                 </Select>
                                 <InputError :message="form.errors.gender" />
                             </div>
+
+                            <Separator />
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="space-y-2">
@@ -308,9 +314,11 @@ function submit() {
                             </div>
                         </CardContent>
                     </Card>
+                    </Transition>
 
                     <!-- Step 2: Contact Information -->
-                    <Card v-show="currentStep === 2">
+                    <Transition name="slide-fade" mode="out-in">
+                    <Card v-if="currentStep === 2" key="step2">
                         <CardContent class="space-y-4 pt-6">
                             <h3 class="text-lg font-semibold">Contact Information</h3>
                             <p class="text-sm text-muted-foreground">Address and contact details.</p>
@@ -326,6 +334,8 @@ function submit() {
                                 <InputError :message="form.errors.address" />
                             </div>
 
+                            <Separator />
+
                             <div class="space-y-2">
                                 <Label for="contact_number">Contact Number</Label>
                                 <Input
@@ -338,9 +348,11 @@ function submit() {
                             </div>
                         </CardContent>
                     </Card>
+                    </Transition>
 
                     <!-- Step 3: Guardian Information -->
-                    <Card v-show="currentStep === 3">
+                    <Transition name="slide-fade" mode="out-in">
+                    <Card v-if="currentStep === 3" key="step3">
                         <CardContent class="space-y-4 pt-6">
                             <h3 class="text-lg font-semibold">Family & Guardian Information</h3>
                             <p class="text-sm text-muted-foreground">Parents and guardian details (per SF1).</p>
@@ -368,6 +380,8 @@ function submit() {
                                     <InputError :message="form.errors.mother_name" />
                                 </div>
                             </div>
+
+                            <Separator />
 
                             <div class="space-y-2">
                                 <Label for="guardian_name">Guardian Name</Label>
@@ -403,9 +417,11 @@ function submit() {
                             </div>
                         </CardContent>
                     </Card>
+                    </Transition>
 
                     <!-- Step 4: Previous School + Review -->
-                    <Card v-show="currentStep === 4">
+                    <Transition name="slide-fade" mode="out-in">
+                    <Card v-if="currentStep === 4" key="step4">
                         <CardContent class="space-y-6 pt-6">
                             <div>
                                 <h3 class="text-lg font-semibold">Previous School</h3>
@@ -422,6 +438,8 @@ function submit() {
                                     <InputError :message="form.errors.previous_school" />
                                 </div>
                             </div>
+
+                            <Separator />
 
                             <div class="rounded-lg border p-4">
                                 <h4 class="mb-3 font-semibold">Review Summary</h4>
@@ -478,6 +496,7 @@ function submit() {
                             </div>
                         </CardContent>
                     </Card>
+                    </Transition>
 
                     <!-- Navigation -->
                     <div class="mt-6 flex justify-between">

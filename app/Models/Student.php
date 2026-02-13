@@ -41,7 +41,7 @@ class Student extends Model
     {
         return [
             'status' => StudentStatus::class,
-            'birthdate' => 'date',
+            'birthdate' => 'date:Y-m-d',
         ];
     }
 

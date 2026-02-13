@@ -76,15 +76,13 @@ class StudentController extends Controller
     {
         return Inertia::render('students/Show', [
             'student' => $student,
-            'history' => Inertia::defer(fn () => [
-                'enrollments' => $student->enrollments()
-                    ->with(['section.strand', 'semester.schoolYear', 'subjects'])
-                    ->latest()
-                    ->get(),
-                'grades' => $student->grades()
-                    ->with('subject')
-                    ->get(),
-            ], 'history'),
+            'enrollments' => Inertia::defer(fn () => $student->enrollments()
+                ->with(['section.strand', 'semester.schoolYear'])
+                ->latest()
+                ->get(), 'history'),
+            'grades' => Inertia::defer(fn () => $student->grades()
+                ->with(['subject', 'enrollment.semester.schoolYear'])
+                ->get(), 'history'),
         ]);
     }
 

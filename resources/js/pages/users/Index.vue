@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Plus } from 'lucide-vue-next';
+import { Edit2, Plus } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import { toast } from 'vue-sonner';
 import ConfirmDialog from '@/components/App/ConfirmDialog.vue';
@@ -18,6 +18,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { TableCell } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, PaginatedData, User } from '@/types';
@@ -175,15 +176,12 @@ function executeToggle() {
                                 size="sm"
                                 @click="openEditDialog(row)"
                             >
-                                Edit
+                                <Edit2 class="size-4" />
                             </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                @click="promptToggle(row)"
-                            >
-                                {{ row.is_active ? 'Deactivate' : 'Activate' }}
-                            </Button>
+                            <Switch
+                                :model-value="row.is_active"
+                                @update:model-value="promptToggle(row)"
+                            />
                         </div>
                     </TableCell>
                 </template>
