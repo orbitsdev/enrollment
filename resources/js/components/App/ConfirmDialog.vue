@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button';
 import {
     AlertDialog,
-    AlertDialogAction,
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
@@ -56,17 +55,13 @@ const emit = defineEmits<{
                         {{ cancelText }}
                     </Button>
                 </AlertDialogCancel>
-                <AlertDialogAction
-                    as-child
+                <Button
+                    :variant="variant"
+                    :disabled="processing"
+                    @click="emit('confirm')"
                 >
-                    <Button
-                        :variant="variant"
-                        :disabled="processing"
-                        @click="emit('confirm')"
-                    >
-                        {{ confirmText }}
-                    </Button>
-                </AlertDialogAction>
+                    {{ confirmText }}
+                </Button>
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>

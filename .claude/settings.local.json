@@ -32,7 +32,9 @@
       "Bash(composer dump-autoload:*)",
       "Bash(python:*)",
       "Bash(python3:*)",
-      "Bash(where:*)"
+      "Bash(where:*)",
+      "Bash(npm run dev:*)",
+      "WebFetch(domain:www.shadcn-vue.com)"
     ]
   }
 }

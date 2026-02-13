@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import 'vue-sonner/style.css';
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import FlashMessage from '@/components/App/FlashMessage.vue';
@@ -34,5 +35,5 @@ const pageKey = computed(() => page.url.split('?')[0]);
             </Transition>
         </AppContent>
     </AppShell>
-    <Toaster />
+    <Toaster richColors position="top-right" />
 </template>

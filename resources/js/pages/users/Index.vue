@@ -2,6 +2,7 @@
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Plus } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
+import { toast } from 'vue-sonner';
 import ConfirmDialog from '@/components/App/ConfirmDialog.vue';
 import DataTable from '@/components/App/DataTable.vue';
 import PageHeader from '@/components/App/PageHeader.vue';
@@ -88,12 +89,17 @@ function promptToggle(user: UserWithRole) {
 function executeToggle() {
     if (!toggleUser.value) return;
 
+    const wasActive = toggleUser.value.is_active;
     toggleProcessing.value = true;
     router.put(
         `/users/${toggleUser.value.id}/toggle-active`,
         {},
         {
             preserveScroll: true,
+            onSuccess: (page) => {
+                page.props.flash = {};
+                toast.success(`User ${wasActive ? 'deactivated' : 'activated'} successfully.`);
+            },
             onFinish: () => {
                 toggleProcessing.value = false;
                 confirmingToggle.value = false;
