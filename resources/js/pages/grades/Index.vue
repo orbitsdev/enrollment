@@ -50,8 +50,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 // Filter state
 const searchQuery = ref('');
-const strandFilter = ref('');
-const gradeLevelFilter = ref('');
+const strandFilter = ref('all');
+const gradeLevelFilter = ref('all');
 const expandedRows = ref<Set<number>>(new Set());
 
 // Derived filter options
@@ -80,9 +80,9 @@ const filteredSections = computed(() => {
     return props.sections.filter((section) => {
         const matchesSearch = !searchQuery.value ||
             section.name.toLowerCase().includes(searchQuery.value.toLowerCase());
-        const matchesStrand = !strandFilter.value ||
+        const matchesStrand = strandFilter.value === 'all' ||
             section.strand?.code === strandFilter.value;
-        const matchesGradeLevel = !gradeLevelFilter.value ||
+        const matchesGradeLevel = gradeLevelFilter.value === 'all' ||
             section.grade_level?.toString() === gradeLevelFilter.value;
         return matchesSearch && matchesStrand && matchesGradeLevel;
     });
@@ -161,7 +161,7 @@ function sectionOverallCompletion(section: SectionWithGradeInfo): number {
                             <SelectValue placeholder="All Strands" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">All Strands</SelectItem>
+                            <SelectItem value="all">All Strands</SelectItem>
                             <SelectItem v-for="strand in uniqueStrands" :key="strand" :value="strand">
                                 {{ strand }}
                             </SelectItem>
@@ -172,7 +172,7 @@ function sectionOverallCompletion(section: SectionWithGradeInfo): number {
                             <SelectValue placeholder="All Grade Levels" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">All Grade Levels</SelectItem>
+                            <SelectItem value="all">All Grade Levels</SelectItem>
                             <SelectItem v-for="level in uniqueGradeLevels" :key="level" :value="level.toString()">
                                 Grade {{ level }}
                             </SelectItem>
