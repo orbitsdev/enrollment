@@ -38,7 +38,8 @@
       "Bash(node -e:*)",
       "Bash(while read f)",
       "Bash(do grep -q \"RouteMetaDefinition.*from\" \"$f\")",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "WebFetch(domain:inspira-ui.com)"
     ]
   }
 }

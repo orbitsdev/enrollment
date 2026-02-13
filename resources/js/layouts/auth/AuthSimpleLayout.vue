@@ -25,7 +25,7 @@ const LAKE_SEBU_IMAGE = '/images/lake-sebu.jpg';
                     href="/"
                     class="flex items-center gap-2 text-lg font-medium"
                 >
-                    <AppLogoIcon class="size-8 fill-current text-white" />
+                    <AppLogoIcon class="size-8 text-white" />
                 </Link>
                 <div class="space-y-2">
                     <h2 class="text-2xl font-bold tracking-tight">
@@ -49,7 +49,7 @@ const LAKE_SEBU_IMAGE = '/images/lake-sebu.jpg';
                         >
                             <div class="mb-1 flex h-9 w-9 items-center justify-center rounded-md">
                                 <AppLogoIcon
-                                    class="size-9 fill-current text-[var(--foreground)] dark:text-white"
+                                    class="size-9 text-[var(--foreground)] dark:text-white"
                                 />
                             </div>
                             <span class="sr-only">{{ title }}</span>

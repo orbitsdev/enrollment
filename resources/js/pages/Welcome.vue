@@ -3,10 +3,11 @@ import { Head, Link } from '@inertiajs/vue3';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { BarChart3, BookOpen, ClipboardList, GraduationCap, ShieldCheck, Users } from 'lucide-vue-next';
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
+import { SparklesText } from '@/components/ui/sparkles-text';
+import { FluidCursor } from '@/components/ui/fluid-cursor';
 
 gsap.registerPlugin(ScrollTrigger);
-
 
 const features = [
     {
@@ -41,17 +42,20 @@ const features = [
     },
 ];
 
+let revealObserver: IntersectionObserver | null = null;
+
 onMounted(() => {
+    // Hero intro timeline (plays immediately on mount — no ScrollTrigger)
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
     tl.from('.hero-header', { y: -20, opacity: 0, duration: 0.5 })
         .from('.hero-badge', { scale: 0.9, opacity: 0, duration: 0.6 }, '-=0.2')
-        .from('.hero-title-1', { y: 30, opacity: 0, duration: 0.7 }, '-=0.3')
-        .from('.hero-title-2', { y: 30, opacity: 0, duration: 0.7 }, '-=0.5')
+        .from('.hero-title', { y: 30, opacity: 0, duration: 0.7 }, '-=0.3')
+        .from('.hero-subtitle', { y: 30, opacity: 0, duration: 0.7 }, '-=0.5')
         .from('.hero-desc', { y: 20, opacity: 0, duration: 0.6 }, '-=0.4')
         .from('.hero-cta', { y: 20, opacity: 0, duration: 0.5 }, '-=0.3');
 
-    // Parallax effect on hero background image
+    // Parallax + zoom effect on hero background image
     gsap.to('.hero-bg-img', {
         scrollTrigger: {
             trigger: '.hero-section',
@@ -60,6 +64,7 @@ onMounted(() => {
             scrub: true,
         },
         y: 150,
+        scale: 1.15,
         ease: 'none',
     });
 
@@ -76,36 +81,34 @@ onMounted(() => {
         ease: 'none',
     });
 
-    // Feature cards with ScrollTrigger
-    gsap.from('.feature-card', {
-        scrollTrigger: { trigger: '.features-grid', start: 'top 80%' },
-        y: 40,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
+    // Animate moving gradient blobs
+    gsap.to('.gradient-blob-1', {
+        x: 100, y: -50, duration: 8, repeat: -1, yoyo: true, ease: 'sine.inOut',
+    });
+    gsap.to('.gradient-blob-2', {
+        x: -80, y: 60, duration: 10, repeat: -1, yoyo: true, ease: 'sine.inOut',
+    });
+    gsap.to('.gradient-blob-3', {
+        x: 60, y: 80, duration: 12, repeat: -1, yoyo: true, ease: 'sine.inOut',
     });
 
-    // About section
-    gsap.from('.about-text', {
-        scrollTrigger: { trigger: '.about-section', start: 'top 80%' },
-        x: -40,
-        opacity: 0,
-        duration: 0.8,
-    });
-    gsap.from('.about-card', {
-        scrollTrigger: { trigger: '.about-section', start: 'top 80%' },
-        x: 40,
-        opacity: 0,
-        duration: 0.8,
-    });
+    // Scroll-reveal using IntersectionObserver (reliable, no invisible elements)
+    revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                revealObserver?.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
 
-    // Footer fade in
-    gsap.from('.site-footer', {
-        scrollTrigger: { trigger: '.site-footer', start: 'top 95%' },
-        y: 20,
-        opacity: 0,
-        duration: 0.6,
+    document.querySelectorAll('.scroll-reveal').forEach(el => {
+        revealObserver!.observe(el);
     });
+});
+
+onUnmounted(() => {
+    revealObserver?.disconnect();
 });
 </script>
 
@@ -116,6 +119,17 @@ onMounted(() => {
     </Head>
 
     <div class="min-h-screen bg-background">
+        <!-- Fluid cursor effect (desktop only) -->
+        <FluidCursor
+            class="hidden lg:block"
+            :transparent="true"
+            :splat-radius="0.12"
+            :splat-force="3000"
+            :density-dissipation="3.5"
+            :velocity-dissipation="2"
+            :curl="4"
+        />
+
         <!-- Header -->
         <header class="hero-header sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
             <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -150,28 +164,50 @@ onMounted(() => {
 
         <!-- Hero Section -->
         <section class="hero-section relative overflow-hidden min-h-[600px]">
-            <!-- Background image -->
+            <!-- Background image with scroll-zoom -->
             <div class="absolute inset-0 -top-[50px] -bottom-[50px]">
                 <img
                     src="/images/lake-sebu.jpg"
                     alt=""
-                    class="hero-bg-img h-full w-full object-cover"
+                    class="hero-bg-img h-full w-full object-cover will-change-transform"
                     loading="eager"
                 />
-                <div class="absolute inset-0 bg-black/50 dark:bg-black/60" />
+                <div class="absolute inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-[1px]" />
+            </div>
+
+            <!-- Floating particles (CSS animated) -->
+            <div class="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
+                <div v-for="n in 20" :key="n"
+                    class="hero-particle absolute rounded-full bg-white/70"
+                    :style="{
+                        width: (n % 3 === 0 ? 5 : n % 3 === 1 ? 3 : 4) + 'px',
+                        height: (n % 3 === 0 ? 5 : n % 3 === 1 ? 3 : 4) + 'px',
+                        left: (n * 5.2 % 100) + '%',
+                        top: (n * 7.3 % 100) + '%',
+                        animation: `float-up ${4 + (n % 5)}s ease-in-out ${n * 0.3}s infinite`,
+                    }"
+                />
             </div>
 
             <!-- Content -->
-            <div class="hero-content relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8 lg:py-40">
+            <div class="hero-content relative z-[2] mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8 lg:py-40">
                 <div class="mx-auto max-w-2xl text-center">
                     <div class="hero-badge mb-8 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm text-white/90 shadow-sm backdrop-blur-sm">
                         <GraduationCap class="mr-2 h-4 w-4" />
                         Senior High School Enrollment System
                     </div>
 
-                    <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-                        <span class="hero-title-1 block">Lake Sebu National</span>
-                        <span class="hero-title-2 block text-white/90">High School</span>
+                    <!-- SparklesText for the school name -->
+                    <div class="hero-title">
+                        <SparklesText
+                            text="Lake Sebu National"
+                            :sparkles-count="8"
+                            :colors="{ first: '#ffffff', second: '#94a3b8' }"
+                            class="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl"
+                        />
+                    </div>
+                    <h1 class="hero-subtitle text-4xl font-bold tracking-tight text-white/90 sm:text-5xl lg:text-6xl">
+                        High School
                     </h1>
 
                     <p class="hero-desc mt-6 text-lg leading-8 text-white/70 sm:text-xl">
@@ -199,10 +235,17 @@ onMounted(() => {
             </div>
         </section>
 
-        <!-- Features Section -->
-        <section class="border-t bg-muted/30 py-24 sm:py-32">
+        <!-- Features Section with animated gradient blobs -->
+        <section class="relative border-t py-24 sm:py-32 overflow-hidden">
+            <!-- Moving gradient blobs -->
+            <div class="absolute inset-0 -z-10">
+                <div class="gradient-blob-1 absolute -top-40 -left-40 h-80 w-80 rounded-full bg-primary/5 blur-3xl dark:bg-primary/10" />
+                <div class="gradient-blob-2 absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-chart-2/5 blur-3xl dark:bg-chart-2/10" />
+                <div class="gradient-blob-3 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-chart-4/5 blur-3xl dark:bg-chart-4/10" />
+            </div>
+
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="mx-auto max-w-2xl text-center">
+                <div class="features-heading scroll-reveal mx-auto max-w-2xl text-center">
                     <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">
                         Everything you need to manage enrollment
                     </h2>
@@ -213,9 +256,10 @@ onMounted(() => {
 
                 <div class="features-grid mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                     <div
-                        v-for="feature in features"
+                        v-for="(feature, index) in features"
                         :key="feature.title"
-                        class="feature-card relative rounded-lg border bg-background p-6 shadow-sm transition-shadow hover:shadow-md"
+                        class="feature-card scroll-reveal relative rounded-lg border bg-background p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-1"
+                        :style="{ transitionDelay: `${index * 100}ms` }"
                     >
                         <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                             <component :is="feature.icon" class="h-5 w-5 text-primary" />
@@ -229,11 +273,11 @@ onMounted(() => {
             </div>
         </section>
 
-        <!-- Info Section -->
-        <section class="about-section border-t py-24 sm:py-32">
+        <!-- Info Section with gradient -->
+        <section class="about-section border-t bg-gradient-to-b from-background to-muted/40 py-24 sm:py-32">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mx-auto grid max-w-5xl grid-cols-1 items-center gap-12 lg:grid-cols-2">
-                    <div class="about-text">
+                    <div class="about-text scroll-reveal scroll-reveal-left">
                         <h2 class="text-3xl font-bold tracking-tight">
                             About the School
                         </h2>
@@ -261,7 +305,7 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
-                    <div class="about-card flex items-center justify-center">
+                    <div class="about-card scroll-reveal scroll-reveal-right flex items-center justify-center">
                         <div class="relative rounded-2xl border bg-muted/50 p-8 text-center shadow-sm">
                             <GraduationCap class="mx-auto h-24 w-24 text-primary/20" />
                             <h3 class="mt-4 text-xl font-bold">LSNHS</h3>
@@ -274,7 +318,7 @@ onMounted(() => {
         </section>
 
         <!-- Footer -->
-        <footer class="site-footer border-t bg-muted/30 py-8">
+        <footer class="site-footer scroll-reveal border-t bg-muted/50 py-8">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
                     <div class="flex items-center gap-2 text-sm text-muted-foreground">
@@ -289,3 +333,27 @@ onMounted(() => {
         </footer>
     </div>
 </template>
+
+<style scoped>
+/* Scroll-reveal animations (CSS transitions triggered by IntersectionObserver) */
+.scroll-reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+        opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-reveal.scroll-reveal-left {
+    transform: translateX(-30px);
+}
+
+.scroll-reveal.scroll-reveal-right {
+    transform: translateX(30px);
+}
+
+.scroll-reveal.revealed {
+    opacity: 1;
+    transform: translate(0, 0);
+}
+</style>
