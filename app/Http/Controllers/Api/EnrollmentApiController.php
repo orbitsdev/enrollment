@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\Section;
 use App\Models\Strand;
@@ -13,6 +14,36 @@ use Illuminate\Http\Request;
 
 class EnrollmentApiController extends Controller
 {
+    /**
+     * Check if a student is already enrolled in a given semester.
+     */
+    public function checkExistingEnrollment(Request $request): JsonResponse
+    {
+        $request->validate([
+            'student_id' => ['required', 'integer', 'exists:students,id'],
+            'semester_id' => ['required', 'integer', 'exists:semesters,id'],
+        ]);
+
+        $enrollment = Enrollment::where('student_id', $request->student_id)
+            ->where('semester_id', $request->semester_id)
+            ->with(['section.strand', 'semester.schoolYear'])
+            ->first();
+
+        if ($enrollment) {
+            return response()->json([
+                'enrolled' => true,
+                'enrollment' => [
+                    'id' => $enrollment->id,
+                    'status' => $enrollment->status->value,
+                    'section' => $enrollment->section?->name,
+                    'strand' => $enrollment->section?->strand?->name,
+                ],
+            ]);
+        }
+
+        return response()->json(['enrolled' => false]);
+    }
+
     /**
      * Get the subject load for a given strand, grade level, and semester.
      */

@@ -116,6 +116,7 @@ const studentResults = ref<Student[]>([]);
 const selectedStudent = ref<Student | null>(null);
 const searchingStudents = ref(false);
 const showQuickStudentDialog = ref(false);
+const existingEnrollment = ref<{ id: number; status: string; section: string; strand: string } | null>(null);
 
 let studentSearchTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -141,16 +142,38 @@ watch(studentSearch, (val) => {
     }, 300);
 });
 
+async function checkExistingEnrollment(studentId: number) {
+    if (!form.semester_id) return;
+    existingEnrollment.value = null;
+    try {
+        const params = new URLSearchParams({
+            student_id: String(studentId),
+            semester_id: String(form.semester_id),
+        });
+        const response = await fetch(`/api/enrollment/check-existing?${params}`, {
+            headers: { 'Accept': 'application/json' },
+        });
+        const data = await response.json();
+        if (data.enrolled) {
+            existingEnrollment.value = data.enrollment;
+        }
+    } catch {
+        // silently ignore
+    }
+}
+
 function selectStudent(student: Student) {
     selectedStudent.value = student;
     form.student_id = student.id;
     studentResults.value = [];
     studentSearch.value = '';
+    checkExistingEnrollment(student.id);
 }
 
 function clearStudent() {
     selectedStudent.value = null;
     form.student_id = null;
+    existingEnrollment.value = null;
 }
 
 function onStudentCreated(student: Student) {
@@ -318,7 +341,7 @@ function submitEnrollment() {
 const canProceed = computed(() => {
     switch (currentStep.value) {
         case 0:
-            return form.student_id !== null;
+            return form.student_id !== null && !existingEnrollment.value;
         case 1:
             return form.strand_id !== null && form.grade_level !== null && form.semester_id !== null;
         case 2:
@@ -446,6 +469,23 @@ function prevStep() {
                                     </Button>
                                 </div>
                             </div>
+
+                            <!-- Already enrolled warning -->
+                            <Alert v-if="existingEnrollment" class="border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950">
+                                <CircleX class="size-4 text-red-600 dark:text-red-400" />
+                                <AlertTitle class="text-red-800 dark:text-red-200">Already enrolled this semester</AlertTitle>
+                                <AlertDescription class="space-y-1">
+                                    <p class="text-sm text-red-700 dark:text-red-300">
+                                        This student already has a <strong>{{ existingEnrollment.status }}</strong> enrollment
+                                        for the current semester in section <strong>{{ existingEnrollment.section }}</strong>
+                                        ({{ existingEnrollment.strand }}).
+                                    </p>
+                                    <p class="text-sm text-red-700 dark:text-red-300">
+                                        A student can only be enrolled once per semester. Select a different student or
+                                        <Link :href="`/enrollment/${existingEnrollment.id}`" class="font-medium underline hover:text-red-900 dark:hover:text-red-100">view the existing enrollment</Link>.
+                                    </p>
+                                </AlertDescription>
+                            </Alert>
 
                             <!-- Search -->
                             <div v-else>
