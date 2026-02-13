@@ -62,22 +62,30 @@ class SubjectSeeder extends Seeder
 
             unset($subjectData['grade_level'], $subjectData['semester'], $subjectData['sort_order']);
 
-            $subject = Subject::create(array_merge($subjectData, [
-                'type' => SubjectType::Core->value,
-                'hours' => 80,
-            ]));
+            $subject = Subject::firstOrCreate(
+                ['code' => $subjectData['code']],
+                array_merge($subjectData, [
+                    'type' => SubjectType::Core->value,
+                    'hours' => 80,
+                ])
+            );
 
-            // Attach to all strands with grade_level, semester, and sort_order
-            $pivotData = [];
+            // Attach to all strands with grade_level, semester, and sort_order (skip if already attached)
             foreach ($strandIds as $strandId) {
-                $pivotData[$strandId] = [
-                    'grade_level' => $gradeLevel,
-                    'semester' => $semester,
-                    'sort_order' => $sortOrder,
-                ];
-            }
+                $alreadyAttached = $subject->strands()
+                    ->where('strands.id', $strandId)
+                    ->wherePivot('grade_level', $gradeLevel)
+                    ->wherePivot('semester', $semester)
+                    ->exists();
 
-            $subject->strands()->attach($pivotData);
+                if (! $alreadyAttached) {
+                    $subject->strands()->attach($strandId, [
+                        'grade_level' => $gradeLevel,
+                        'semester' => $semester,
+                        'sort_order' => $sortOrder,
+                    ]);
+                }
+            }
         }
 
         // Set prerequisite relationships
@@ -92,7 +100,7 @@ class SubjectSeeder extends Seeder
             $subject = Subject::where('code', $subjectCode)->first();
             $prerequisite = Subject::where('code', $prerequisiteCode)->first();
 
-            if ($subject && $prerequisite) {
+            if ($subject && $prerequisite && ! $subject->prerequisite_id) {
                 $subject->update(['prerequisite_id' => $prerequisite->id]);
             }
         }

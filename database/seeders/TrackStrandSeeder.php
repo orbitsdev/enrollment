@@ -40,10 +40,16 @@ class TrackStrandSeeder extends Seeder
             $strands = $trackData['strands'];
             unset($trackData['strands']);
 
-            $track = Track::create($trackData);
+            $track = Track::firstOrCreate(
+                ['code' => $trackData['code']],
+                $trackData
+            );
 
             foreach ($strands as $strandData) {
-                $track->strands()->create($strandData);
+                $track->strands()->firstOrCreate(
+                    ['code' => $strandData['code']],
+                    $strandData
+                );
             }
         }
     }

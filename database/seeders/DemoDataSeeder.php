@@ -130,44 +130,39 @@ class DemoDataSeeder extends Seeder
         Semester::query()->update(['is_active' => false, 'enrollment_open' => false]);
 
         // Past school year
-        $pastSY = SchoolYear::create([
-            'name' => '2024-2025',
-            'is_active' => false,
-        ]);
+        $pastSY = SchoolYear::firstOrCreate(
+            ['name' => '2024-2025'],
+            ['is_active' => false]
+        );
+        $pastSY->update(['is_active' => false]);
 
-        $pastSem1 = Semester::create([
-            'school_year_id' => $pastSY->id,
-            'number' => 1,
-            'is_active' => false,
-            'enrollment_open' => false,
-        ]);
+        $pastSem1 = Semester::firstOrCreate(
+            ['school_year_id' => $pastSY->id, 'number' => 1],
+            ['is_active' => false, 'enrollment_open' => false]
+        );
 
-        $pastSem2 = Semester::create([
-            'school_year_id' => $pastSY->id,
-            'number' => 2,
-            'is_active' => false,
-            'enrollment_open' => false,
-        ]);
+        $pastSem2 = Semester::firstOrCreate(
+            ['school_year_id' => $pastSY->id, 'number' => 2],
+            ['is_active' => false, 'enrollment_open' => false]
+        );
 
         // Current school year
-        $currentSY = SchoolYear::create([
-            'name' => '2025-2026',
-            'is_active' => true,
-        ]);
+        $currentSY = SchoolYear::firstOrCreate(
+            ['name' => '2025-2026'],
+            ['is_active' => true]
+        );
+        $currentSY->update(['is_active' => true]);
 
-        $currentSem1 = Semester::create([
-            'school_year_id' => $currentSY->id,
-            'number' => 1,
-            'is_active' => true,
-            'enrollment_open' => true,
-        ]);
+        $currentSem1 = Semester::firstOrCreate(
+            ['school_year_id' => $currentSY->id, 'number' => 1],
+            ['is_active' => true, 'enrollment_open' => true]
+        );
+        $currentSem1->update(['is_active' => true, 'enrollment_open' => true]);
 
-        Semester::create([
-            'school_year_id' => $currentSY->id,
-            'number' => 2,
-            'is_active' => false,
-            'enrollment_open' => false,
-        ]);
+        Semester::firstOrCreate(
+            ['school_year_id' => $currentSY->id, 'number' => 2],
+            ['is_active' => false, 'enrollment_open' => false]
+        );
 
         return [
             'past' => ['sy' => $pastSY, 'sem1' => $pastSem1, 'sem2' => $pastSem2],
@@ -192,26 +187,34 @@ class DemoDataSeeder extends Seeder
 
         foreach ($teacherData as $data) {
             $email = strtolower(str_replace(' ', '.', $data['name'])) . '@school.edu.ph';
-            $user = User::create([
-                'name' => $data['name'],
-                'email' => $email,
-                'password' => Hash::make('password'),
-                'is_active' => true,
-                'email_verified_at' => now(),
-            ]);
-            $user->assignRole(UserRole::Teacher->value);
+            $user = User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'name' => $data['name'],
+                    'password' => Hash::make('password'),
+                    'is_active' => true,
+                    'email_verified_at' => now(),
+                ]
+            );
+            if (! $user->hasRole(UserRole::Teacher->value)) {
+                $user->assignRole(UserRole::Teacher->value);
+            }
             $user->sex = $data['sex'];
             $teachers->push($user);
         }
 
-        $registrar = User::create([
-            'name' => 'Elena Bautista',
-            'email' => 'registrar@school.edu.ph',
-            'password' => Hash::make('password'),
-            'is_active' => true,
-            'email_verified_at' => now(),
-        ]);
-        $registrar->assignRole(UserRole::Registrar->value);
+        $registrar = User::firstOrCreate(
+            ['email' => 'registrar@school.edu.ph'],
+            [
+                'name' => 'Elena Bautista',
+                'password' => Hash::make('password'),
+                'is_active' => true,
+                'email_verified_at' => now(),
+            ]
+        );
+        if (! $registrar->hasRole(UserRole::Registrar->value)) {
+            $registrar->assignRole(UserRole::Registrar->value);
+        }
 
         return $teachers;
     }
@@ -257,6 +260,10 @@ class DemoDataSeeder extends Seeder
         $sponsors = ['DepEd', 'NEAP', 'Division Office', 'Regional Office', 'School-Based'];
 
         foreach ($teachers as $i => $teacher) {
+            if (TeacherProfile::where('user_id', $teacher->id)->exists()) {
+                continue;
+            }
+
             $profile = TeacherProfile::create([
                 'user_id' => $teacher->id,
                 'employee_id' => 'EMP-' . str_pad((string) ($i + 1), 5, '0', STR_PAD_LEFT),
@@ -338,40 +345,49 @@ class DemoDataSeeder extends Seeder
             $fatherLastName = $lastName;
             $motherLastName = $this->lastNames[array_rand($this->lastNames)];
 
-            $student = Student::create([
-                'lrn' => $lrn,
-                'last_name' => $lastName,
-                'first_name' => $firstName,
-                'middle_name' => $middleName,
-                'suffix' => $this->suffixes[array_rand($this->suffixes)],
-                'birthdate' => $birthdate,
-                'gender' => $gender,
-                'religion' => $this->religions[array_rand($this->religions)],
-                'learning_modality' => $modalities[array_rand($modalities)],
-                'address' => $this->addresses[array_rand($this->addresses)],
-                'contact_number' => '09' . rand(100000000, 999999999),
-                'father_name' => $fatherLastName . ', ' . $this->maleFirstNames[array_rand($this->maleFirstNames)],
-                'mother_name' => $motherLastName . ', ' . $this->femaleFirstNames[array_rand($this->femaleFirstNames)],
-                'guardian_name' => $this->lastNames[array_rand($this->lastNames)] . ', ' . ($gender === 'male'
-                    ? $this->femaleFirstNames[array_rand($this->femaleFirstNames)]
-                    : $this->maleFirstNames[array_rand($this->maleFirstNames)]),
-                'guardian_contact' => '09' . rand(100000000, 999999999),
-                'guardian_relationship' => ['Mother', 'Father', 'Guardian', 'Grandmother', 'Grandfather'][array_rand(['Mother', 'Father', 'Guardian', 'Grandmother', 'Grandfather'])],
-                'previous_school' => $i < 150 ? $this->previousSchools[array_rand($this->previousSchools)] : null,
-                'status' => $status->value,
-            ]);
+            $student = Student::firstOrCreate(
+                ['lrn' => $lrn],
+                [
+                    'last_name' => $lastName,
+                    'first_name' => $firstName,
+                    'middle_name' => $middleName,
+                    'suffix' => $this->suffixes[array_rand($this->suffixes)],
+                    'birthdate' => $birthdate,
+                    'gender' => $gender,
+                    'religion' => $this->religions[array_rand($this->religions)],
+                    'learning_modality' => $modalities[array_rand($modalities)],
+                    'address' => $this->addresses[array_rand($this->addresses)],
+                    'contact_number' => '09' . rand(100000000, 999999999),
+                    'father_name' => $fatherLastName . ', ' . $this->maleFirstNames[array_rand($this->maleFirstNames)],
+                    'mother_name' => $motherLastName . ', ' . $this->femaleFirstNames[array_rand($this->femaleFirstNames)],
+                    'guardian_name' => $this->lastNames[array_rand($this->lastNames)] . ', ' . ($gender === 'male'
+                        ? $this->femaleFirstNames[array_rand($this->femaleFirstNames)]
+                        : $this->maleFirstNames[array_rand($this->maleFirstNames)]),
+                    'guardian_contact' => '09' . rand(100000000, 999999999),
+                    'guardian_relationship' => ['Mother', 'Father', 'Guardian', 'Grandmother', 'Grandfather'][array_rand(['Mother', 'Father', 'Guardian', 'Grandmother', 'Grandfather'])],
+                    'previous_school' => $i < 150 ? $this->previousSchools[array_rand($this->previousSchools)] : null,
+                    'status' => $status->value,
+                ]
+            );
 
             // Create user accounts for the first 3 students for testing
             if ($i < 3) {
-                $user = User::create([
-                    'name' => $firstName . ' ' . $lastName,
-                    'email' => 'student' . ($i + 1) . '@school.edu.ph',
-                    'password' => Hash::make('password'),
-                    'is_active' => true,
-                    'email_verified_at' => now(),
-                ]);
-                $user->assignRole(UserRole::Student->value);
-                $student->update(['user_id' => $user->id]);
+                $email = 'student' . ($i + 1) . '@school.edu.ph';
+                $user = User::firstOrCreate(
+                    ['email' => $email],
+                    [
+                        'name' => $firstName . ' ' . $lastName,
+                        'password' => Hash::make('password'),
+                        'is_active' => true,
+                        'email_verified_at' => now(),
+                    ]
+                );
+                if (! $user->hasRole(UserRole::Student->value)) {
+                    $user->assignRole(UserRole::Student->value);
+                }
+                if (! $student->user_id) {
+                    $student->update(['user_id' => $user->id]);
+                }
             }
 
             $students->push($student);
@@ -401,14 +417,15 @@ class DemoDataSeeder extends Seeder
             foreach ($sectionNames as $suffix) {
                 $sectionName = $strand->code . ' ' . $gradeLevel . '-' . $suffix;
 
-                $section = Section::create([
-                    'name' => $sectionName,
-                    'strand_id' => $strand->id,
-                    'semester_id' => $semester->id,
-                    'grade_level' => $gradeLevel,
-                    'max_capacity' => 50,
-                    'adviser_id' => $teachers[$teacherIndex % $teachers->count()]->id,
-                ]);
+                $section = Section::firstOrCreate(
+                    ['name' => $sectionName, 'semester_id' => $semester->id],
+                    [
+                        'strand_id' => $strand->id,
+                        'grade_level' => $gradeLevel,
+                        'max_capacity' => 50,
+                        'adviser_id' => $teachers[$teacherIndex % $teachers->count()]->id,
+                    ]
+                );
 
                 $sections->push($section);
                 $teacherIndex++;
@@ -432,6 +449,15 @@ class DemoDataSeeder extends Seeder
 
         foreach ($students as $index => $student) {
             $section = $sections[$index % $sectionCount];
+
+            // Skip if already enrolled in this semester
+            $existingEnrollment = Enrollment::where('student_id', $student->id)
+                ->where('semester_id', $semester->id)
+                ->first();
+
+            if ($existingEnrollment) {
+                continue;
+            }
 
             // Vary enrollment statuses for current semester
             $enrollmentStatus = EnrollmentStatus::Enrolled;
