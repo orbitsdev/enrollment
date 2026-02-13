@@ -26,6 +26,10 @@ Route::get('/', function () {
 
 Route::get('dashboard', DashboardController::class)->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('documentation', function () {
+    return Inertia::render('Documentation');
+})->name('documentation');
+
 // Admin only
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggle-active');
