@@ -17,6 +17,7 @@ watch(
             toast.success(message);
         }
     },
+    { immediate: true },
 );
 
 watch(
@@ -26,6 +27,7 @@ watch(
             toast.error(message);
         }
     },
+    { immediate: true },
 );
 
 watch(
@@ -35,6 +37,7 @@ watch(
             toast.warning(message);
         }
     },
+    { immediate: true },
 );
 
 watch(
@@ -44,6 +47,7 @@ watch(
             toast.info(message);
         }
     },
+    { immediate: true },
 );
 </script>
 
