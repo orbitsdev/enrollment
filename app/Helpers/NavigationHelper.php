@@ -31,6 +31,7 @@ class NavigationHelper
                 'items' => [
                     ['title' => 'Users', 'href' => '/users', 'icon' => 'Users'],
                     ['title' => 'School Settings', 'href' => '/school-settings', 'icon' => 'Settings'],
+                    ['title' => 'School Years', 'href' => '/school-years', 'icon' => 'CalendarDays'],
                 ],
             ];
         }

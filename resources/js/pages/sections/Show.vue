@@ -110,7 +110,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <div>
                             <p class="text-sm font-medium text-muted-foreground">Semester</p>
                             <p class="mt-1 text-sm">
-                                {{ section.semester?.label ?? `${section.semester?.school_year?.name} - Sem ${section.semester?.number}` }}
+                                {{ section.semester?.full_label ?? section.semester?.label ?? `${section.semester?.school_year?.name} - Sem ${section.semester?.number}` }}
                             </p>
                         </div>
                         <div>

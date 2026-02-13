@@ -594,6 +594,10 @@ function prevStep() {
                                     >
                                         {{ activeSemester.full_label || activeSemester.label || `Semester ${activeSemester.number}` }}
                                     </div>
+                                    <p v-if="activeSemester" class="text-xs text-muted-foreground">
+                                        Auto-selected from active semester. Managed in
+                                        <Link href="/school-years" class="font-medium text-primary underline">School Year settings</Link>.
+                                    </p>
                                     <Alert v-else class="border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950">
                                         <AlertTriangle class="size-4 text-amber-600" />
                                         <AlertDescription class="text-sm text-amber-700 dark:text-amber-300">
@@ -747,15 +751,29 @@ function prevStep() {
                                 </div>
                             </RadioGroup>
 
-                            <div v-else class="py-8 text-center">
-                                <p class="text-muted-foreground">
-                                    No sections exist for this strand/grade/semester.
-                                </p>
-                                <p class="mt-2 text-sm text-muted-foreground">
-                                    Create sections in the
-                                    <Link href="/sections" class="font-medium text-primary underline">Sections page</Link>
-                                    first.
-                                </p>
+                            <div v-else class="py-8">
+                                <Alert class="border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950">
+                                    <AlertTriangle class="size-4 text-amber-600 dark:text-amber-400" />
+                                    <AlertTitle class="text-amber-800 dark:text-amber-200">No sections available</AlertTitle>
+                                    <AlertDescription class="space-y-2">
+                                        <p class="text-sm text-amber-700 dark:text-amber-300">
+                                            No sections exist for
+                                            <strong>{{ selectedStrand?.name ?? 'Unknown Strand' }}</strong> /
+                                            <strong>Grade {{ form.grade_level }}</strong> /
+                                            <strong>{{ activeSemester?.full_label ?? activeSemester?.label ?? 'Unknown Semester' }}</strong>.
+                                        </p>
+                                        <p class="text-sm text-amber-700 dark:text-amber-300">
+                                            <strong>Why:</strong> A section must be created with this exact strand, grade level, and semester combination before a student can be enrolled.
+                                        </p>
+                                        <p class="text-sm text-amber-700 dark:text-amber-300">
+                                            <strong>How to fix:</strong> Go to the
+                                            <Link href="/sections" class="font-medium underline hover:text-amber-900 dark:hover:text-amber-100">Sections page</Link>
+                                            and create a new section assigned to
+                                            <strong>{{ selectedStrand?.name }}</strong>, <strong>Grade {{ form.grade_level }}</strong>,
+                                            for the <strong>{{ activeSemester?.full_label ?? activeSemester?.label }}</strong> semester.
+                                        </p>
+                                    </AlertDescription>
+                                </Alert>
                             </div>
 
                             <InputError :message="form.errors.section_id" class="mt-2" />

@@ -135,7 +135,7 @@ function onGradeLevelChange(value: string) {
                             :key="sem.id"
                             :value="String(sem.id)"
                         >
-                            {{ sem.label ?? `${sem.school_year?.name} - Sem ${sem.number}` }}
+                            {{ sem.full_label ?? sem.label ?? `${sem.school_year?.name} - Sem ${sem.number}` }}
                         </SelectItem>
                     </SelectContent>
                 </Select>
@@ -202,7 +202,7 @@ function onGradeLevelChange(value: string) {
                                 Grade {{ section.grade_level }}
                             </TableCell>
                             <TableCell>
-                                {{ section.semester?.label ?? `Sem ${section.semester?.number}` }}
+                                {{ section.semester?.full_label ?? section.semester?.label ?? `Sem ${section.semester?.number}` }}
                             </TableCell>
                             <TableCell>
                                 {{ section.adviser?.name ?? 'Not assigned' }}

@@ -14,6 +14,7 @@ use App\Models\Subject;
 use App\Models\Track;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -85,13 +86,20 @@ class EnrollmentController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'student_id' => ['required', 'integer', 'exists:students,id'],
+            'student_id' => [
+                'required',
+                'integer',
+                'exists:students,id',
+                Rule::unique('enrollments')->where('semester_id', $request->input('semester_id')),
+            ],
             'strand_id' => ['required', 'integer', 'exists:strands,id'],
             'grade_level' => ['required', 'integer', 'in:11,12'],
             'semester_id' => ['required', 'integer', 'exists:semesters,id'],
             'section_id' => ['required', 'integer', 'exists:sections,id'],
             'subject_ids' => ['required', 'array', 'min:1'],
             'subject_ids.*' => ['integer', 'exists:subjects,id'],
+        ], [
+            'student_id.unique' => 'This student is already enrolled for the selected semester.',
         ]);
 
         $enrollment = Enrollment::create([

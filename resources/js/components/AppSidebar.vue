@@ -3,6 +3,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import {
     BarChart3,
     BookOpen,
+    CalendarDays,
     ClipboardList,
     FileSpreadsheet,
     GraduationCap,
@@ -41,6 +42,7 @@ const iconMap: Record<string, Component> = {
     Users,
     Settings,
     BookOpen,
+    CalendarDays,
     GraduationCap,
     UserCheck,
     LayoutList,

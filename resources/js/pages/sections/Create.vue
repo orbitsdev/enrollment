@@ -124,7 +124,7 @@ function submit() {
                                             :key="sem.id"
                                             :value="String(sem.id)"
                                         >
-                                            {{ sem.label ?? `${sem.school_year?.name} - Sem ${sem.number}` }}
+                                            {{ sem.full_label ?? sem.label ?? `${sem.school_year?.name} - Sem ${sem.number}` }}
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
