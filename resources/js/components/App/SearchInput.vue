@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
-import { Search } from 'lucide-vue-next';
+import { Loader2, Search } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 import { Input } from '@/components/ui/input';
 
@@ -24,6 +24,7 @@ const emit = defineEmits<{
 }>();
 
 const search = ref(props.modelValue);
+const loading = ref(false);
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let abortController: AbortController | null = null;
 
@@ -50,30 +51,38 @@ function onInput(event: Event) {
 
     debounceTimer = setTimeout(() => {
         abortController = new AbortController();
+        loading.value = true;
 
         router.reload({
             data: { ...props.extraData, search: value || undefined },
             only: props.only.length > 0 ? props.only : undefined,
             preserveState: true,
             preserveScroll: true,
+            showProgress: false,
             onCancelToken: (token) => {
                 abortController!.signal.addEventListener('abort', () => token.cancel());
             },
             onFinish: () => {
                 abortController = null;
+                loading.value = false;
             },
         });
-    }, 200);
+    }, 300);
 }
 </script>
 
 <template>
     <div class="relative w-full max-w-sm">
+        <Loader2
+            v-if="loading"
+            class="absolute left-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground"
+        />
         <Search
+            v-else
             class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
         />
         <Input
-            :value="search"
+            v-model="search"
             :placeholder="placeholder"
             class="pl-9"
             @input="onInput"
