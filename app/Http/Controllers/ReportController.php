@@ -166,7 +166,7 @@ class ReportController extends Controller
         if ($sectionId) {
             $section = Section::with('strand.subjects')->find($sectionId);
 
-            if ($section) {
+            if ($section?->strand) {
                 $subjects = $section->strand->subjects()
                     ->wherePivot('grade_level', $section->grade_level)
                     ->wherePivot('semester', $activeSemester?->number)
@@ -185,7 +185,11 @@ class ReportController extends Controller
             $grades = $query->get()
                 ->groupBy('enrollment_id')
                 ->map(function ($studentGrades) {
-                    $enrollment = $studentGrades->first()->enrollment;
+                    $first = $studentGrades->first();
+                    if (! $first?->enrollment?->student) {
+                        return null;
+                    }
+                    $enrollment = $first->enrollment;
 
                     return [
                         'student' => $enrollment->student,
@@ -198,6 +202,7 @@ class ReportController extends Controller
                         ])->values(),
                     ];
                 })
+                ->filter()
                 ->values()
                 ->toArray();
         }

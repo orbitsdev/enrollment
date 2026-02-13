@@ -68,11 +68,19 @@ class SchoolYearController extends Controller
      */
     public function activate(SchoolYear $schoolYear): RedirectResponse
     {
+        // Ensure school year has semesters
+        if ($schoolYear->semesters()->count() === 0) {
+            $schoolYear->semesters()->createMany([
+                ['number' => 1],
+                ['number' => 2],
+            ]);
+        }
+
         // Deactivate all school years
         SchoolYear::query()->update(['is_active' => false]);
 
         // Deactivate all semesters
-        Semester::query()->update(['is_active' => false]);
+        Semester::query()->update(['is_active' => false, 'enrollment_open' => false]);
 
         // Activate the selected school year
         $schoolYear->update(['is_active' => true]);

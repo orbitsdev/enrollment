@@ -22,9 +22,13 @@ class GenerateSF9
             'grades.subject',
         ]);
 
+        if (! $enrollment->student) {
+            abort(404, 'Student record not found for this enrollment.');
+        }
+
         $schoolSettings = SchoolSetting::pluck('value', 'key')->toArray();
 
-        $filename = 'SF9-' . $enrollment->student->lrn . '-' . now()->format('Ymd') . '.pdf';
+        $filename = 'SF9-' . ($enrollment->student->lrn ?? $enrollment->student_id) . '-' . now()->format('Ymd') . '.pdf';
         $tempPath = storage_path('app/temp/' . $filename);
 
         if (! is_dir(storage_path('app/temp'))) {

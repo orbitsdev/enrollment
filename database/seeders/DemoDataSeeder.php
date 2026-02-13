@@ -64,16 +64,16 @@ class DemoDataSeeder extends Seeder
     ];
 
     protected array $addresses = [
-        'Brgy. San Antonio, Lipa City, Batangas',
-        'Brgy. Poblacion, Tanauan City, Batangas',
-        'Brgy. Tambo, Lipa City, Batangas',
-        'Brgy. Balintawak, Lipa City, Batangas',
-        'Brgy. Marawoy, Lipa City, Batangas',
-        'Brgy. Dagatan, Lipa City, Batangas',
-        'Brgy. Mataas na Lupa, Lipa City, Batangas',
-        'Brgy. Sabang, Lipa City, Batangas',
-        'Brgy. Pinagkawitan, Lipa City, Batangas',
-        'Brgy. Maraouy, Lipa City, Batangas',
+        'Brgy. Poblacion, Lake Sebu, South Cotabato',
+        'Brgy. Lamdalag, Lake Sebu, South Cotabato',
+        'Brgy. Tasiman, Lake Sebu, South Cotabato',
+        'Brgy. Halilan, Lake Sebu, South Cotabato',
+        'Brgy. Klubi, Lake Sebu, South Cotabato',
+        'Brgy. Bacdulong, Lake Sebu, South Cotabato',
+        'Brgy. Ned, Lake Sebu, South Cotabato',
+        'Brgy. Takunel, Lake Sebu, South Cotabato',
+        'Brgy. Seloton, Lake Sebu, South Cotabato',
+        'Brgy. Lahit, Lake Sebu, South Cotabato',
     ];
 
     protected array $religions = [
@@ -83,16 +83,16 @@ class DemoDataSeeder extends Seeder
     ];
 
     protected array $previousSchools = [
-        'Lipa City National High School',
-        'Tanauan City National High School',
-        'Batangas Eastern Colleges',
-        'San Jose National High School',
-        'Rosario National High School',
-        'Cuenca National High School',
-        'Padre Garcia Integrated National High School',
-        'Malvar National High School',
-        'Bauan Technical High School',
-        'Lemery National High School',
+        'Lake Sebu National High School',
+        'Surallah National High School',
+        'Koronadal National High School',
+        'Polomolok National High School',
+        'T\'boli National High School',
+        'General Santos City National High School',
+        'Tupi National High School',
+        'Tantangan National High School',
+        'Norala National High School',
+        'Banga National High School',
     ];
 
     protected array $suffixes = ['', '', '', '', '', '', '', 'Jr.', 'III', 'IV'];
@@ -131,7 +131,7 @@ class DemoDataSeeder extends Seeder
 
         // Past school year
         $pastSY = SchoolYear::create([
-            'name' => '2023-2024',
+            'name' => '2024-2025',
             'is_active' => false,
         ]);
 
@@ -151,7 +151,7 @@ class DemoDataSeeder extends Seeder
 
         // Current school year
         $currentSY = SchoolYear::create([
-            'name' => '2024-2025',
+            'name' => '2025-2026',
             'is_active' => true,
         ]);
 
@@ -233,11 +233,11 @@ class DemoDataSeeder extends Seeder
         ];
         $majors = ['Mathematics', 'English', 'Science', 'Filipino', 'Social Studies'];
         $schools = [
-            'Batangas State University',
-            'University of Batangas',
-            'Lyceum of the Philippines - Batangas',
-            'De La Salle Lipa',
-            'Philippine Normal University',
+            'University of Southern Mindanao',
+            'Notre Dame of Marbel University',
+            'Ramon Magsaysay Memorial Colleges',
+            'Mindanao State University - General Santos',
+            'Philippine Normal University - Mindanao',
         ];
         $specializations = ['Mathematics', 'English', 'Science', 'Filipino', 'Social Studies'];
 

@@ -50,7 +50,7 @@ class EnrollmentTestSeeder extends Seeder
         $sy = SchoolYear::where('is_active', true)->first();
 
         if (! $sy) {
-            $sy = SchoolYear::create(['name' => '2024-2025', 'is_active' => true]);
+            $sy = SchoolYear::create(['name' => '2025-2026', 'is_active' => true]);
         }
 
         $semester = Semester::create([

@@ -25,13 +25,15 @@ class GradeController extends Controller
         $user = Auth::user();
         $activeSemester = \App\Models\Semester::where('is_active', true)->first();
 
-        $query = Section::with(['strand.track'])
-            ->withEnrolledCount();
-
-        // If the semester is active, filter to active semester only
-        if ($activeSemester) {
-            $query->where('semester_id', $activeSemester->id);
+        if (! $activeSemester) {
+            return Inertia::render('grades/Index', [
+                'sections' => fn () => collect(),
+            ]);
         }
+
+        $query = Section::with(['strand.track'])
+            ->withEnrolledCount()
+            ->where('semester_id', $activeSemester->id);
 
         // Teachers only see their assigned sections
         if ($user->hasRole(UserRole::Teacher->value)) {
@@ -39,6 +41,11 @@ class GradeController extends Controller
         }
 
         $sections = $query->get()->map(function (Section $section) {
+            if (! $section->strand) {
+                $section->setRelation('subjects', collect());
+                return $section;
+            }
+
             // Get subjects for this section's strand and grade level
             $subjects = $section->strand->subjects()
                 ->wherePivot('grade_level', $section->grade_level)

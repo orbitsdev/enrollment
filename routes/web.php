@@ -31,6 +31,10 @@ Route::get('documentation', function () {
     return Inertia::render('Documentation');
 })->name('documentation');
 
+Route::get('user-manual', function () {
+    return Inertia::render('UserManual');
+})->name('user-manual');
+
 // Admin only
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggle-active');

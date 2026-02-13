@@ -64,7 +64,9 @@ class Semester extends Model
     protected function fullLabel(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->label . ' - SY ' . $this->schoolYear?->name,
+            get: fn () => $this->schoolYear
+                ? ($this->label . ' - SY ' . $this->schoolYear->name)
+                : $this->label,
         );
     }
 }

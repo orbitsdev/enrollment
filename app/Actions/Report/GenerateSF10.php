@@ -27,7 +27,7 @@ class GenerateSF10
 
         $schoolSettings = SchoolSetting::pluck('value', 'key')->toArray();
 
-        $filename = 'SF10-' . $student->lrn . '-' . now()->format('Ymd') . '.pdf';
+        $filename = 'SF10-' . ($student->lrn ?? $student->id) . '-' . now()->format('Ymd') . '.pdf';
         $tempPath = storage_path('app/temp/' . $filename);
 
         if (! is_dir(storage_path('app/temp'))) {

@@ -46,7 +46,7 @@ class Strand extends Model
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->track?->name . ' - ' . $this->name,
+            get: fn () => $this->track ? ($this->track->name . ' - ' . $this->name) : $this->name,
         );
     }
 }
