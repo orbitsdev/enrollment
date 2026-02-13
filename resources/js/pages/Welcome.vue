@@ -4,7 +4,6 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { BarChart3, BookOpen, ClipboardList, GraduationCap, ShieldCheck, Users } from 'lucide-vue-next';
 import { onMounted } from 'vue';
-import { dashboard, login } from '@/routes';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -141,14 +140,14 @@ onMounted(() => {
                 <nav class="flex items-center gap-3">
                     <Link
                         v-if="$page.props.auth.user"
-                        :href="dashboard()"
+                        href="/dashboard"
                         class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
                     >
                         Dashboard
                     </Link>
                     <template v-else>
                         <Link
-                            :href="login()"
+                            href="/login"
                             class="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
                         >
                             Log in
@@ -199,14 +198,14 @@ onMounted(() => {
                     <div class="hero-cta mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
                         <Link
                             v-if="$page.props.auth.user"
-                            :href="dashboard()"
+                            href="/dashboard"
                             class="inline-flex w-full items-center justify-center rounded-md bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 sm:w-auto"
                         >
                             Go to Dashboard
                         </Link>
                         <template v-else>
                             <Link
-                                :href="login()"
+                                href="/login"
                                 class="inline-flex w-full items-center justify-center rounded-md bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 sm:w-auto"
                             >
                                 Log in to Get Started

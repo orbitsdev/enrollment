@@ -6,7 +6,6 @@ import EnrollmentByTrackChart from '@/components/Charts/EnrollmentByTrackChart.v
 import SectionCapacityChart from '@/components/Charts/SectionCapacityChart.vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Users, UserCheck, LayoutGrid, GraduationCap, CalendarDays } from 'lucide-vue-next';
 import { computed } from 'vue';
@@ -36,7 +35,7 @@ const props = defineProps<{
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard().url,
+        href: '/dashboard',
     },
 ];
 
