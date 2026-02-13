@@ -153,28 +153,28 @@ onMounted(() => {
             <!-- Background image -->
             <div class="absolute inset-0 -top-[50px] -bottom-[50px]">
                 <img
-                    src="https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=1920&q=80"
+                    src="/images/lake-sebu.jpg"
                     alt=""
                     class="hero-bg-img h-full w-full object-cover"
                     loading="eager"
                 />
-                <div class="absolute inset-0 bg-background/85 dark:bg-background/90" />
+                <div class="absolute inset-0 bg-black/50 dark:bg-black/60" />
             </div>
 
             <!-- Content -->
             <div class="hero-content relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8 lg:py-40">
                 <div class="mx-auto max-w-2xl text-center">
-                    <div class="hero-badge mb-8 inline-flex items-center rounded-full border bg-background/80 px-4 py-1.5 text-sm text-muted-foreground shadow-sm backdrop-blur-sm">
+                    <div class="hero-badge mb-8 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm text-white/90 shadow-sm backdrop-blur-sm">
                         <GraduationCap class="mr-2 h-4 w-4" />
                         Senior High School Enrollment System
                     </div>
 
-                    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+                    <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
                         <span class="hero-title-1 block">Lake Sebu National</span>
-                        <span class="hero-title-2 block text-primary">High School</span>
+                        <span class="hero-title-2 block text-white/90">High School</span>
                     </h1>
 
-                    <p class="hero-desc mt-6 text-lg leading-8 text-muted-foreground sm:text-xl">
+                    <p class="hero-desc mt-6 text-lg leading-8 text-white/70 sm:text-xl">
                         A comprehensive enrollment and student information system for managing
                         student records, class sections, grades, and DepEd school forms.
                     </p>
@@ -183,14 +183,14 @@ onMounted(() => {
                         <Link
                             v-if="$page.props.auth.user"
                             href="/dashboard"
-                            class="inline-flex w-full items-center justify-center rounded-md bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 sm:w-auto"
+                            class="inline-flex w-full items-center justify-center rounded-md bg-white px-8 py-3 text-sm font-medium text-black shadow-sm transition-colors hover:bg-white/90 sm:w-auto"
                         >
                             Go to Dashboard
                         </Link>
                         <Link
                             v-else
                             href="/login"
-                            class="inline-flex w-full items-center justify-center rounded-md bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 sm:w-auto"
+                            class="inline-flex w-full items-center justify-center rounded-md bg-white px-8 py-3 text-sm font-medium text-black shadow-sm transition-colors hover:bg-white/90 sm:w-auto"
                         >
                             Log in to Get Started
                         </Link>

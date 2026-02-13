@@ -25,13 +25,13 @@ const chartData = computed(() => ({
         {
             label: 'Enrolled',
             data: Object.values(props.data).map((v) => v.enrolled),
-            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+            backgroundColor: '#e1713e', // chart-1: oklch(0.646 0.222 41.116)
             borderRadius: 4,
         },
         {
             label: 'Max Capacity',
             data: Object.values(props.data).map((v) => v.max),
-            backgroundColor: 'rgba(229, 231, 235, 0.8)',
+            backgroundColor: '#d4d4d8', // neutral-300 equivalent
             borderRadius: 4,
         },
     ],

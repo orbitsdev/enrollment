@@ -19,13 +19,14 @@ interface Props {
 
 const props = defineProps<Props>();
 
+// Theme-aligned chart colors (oklch-equivalent hex values matching --chart-1 through --chart-5)
 const chartColors = [
-    'rgba(59, 130, 246, 0.8)',
-    'rgba(16, 185, 129, 0.8)',
-    'rgba(245, 158, 11, 0.8)',
-    'rgba(239, 68, 68, 0.8)',
-    'rgba(139, 92, 246, 0.8)',
-    'rgba(236, 72, 153, 0.8)',
+    '#e1713e', // chart-1: oklch(0.646 0.222 41.116)
+    '#1a9a82', // chart-2: oklch(0.6 0.118 184.704)
+    '#2c526b', // chart-3: oklch(0.398 0.07 227.392)
+    '#d4b140', // chart-4: oklch(0.828 0.189 84.429)
+    '#d49040', // chart-5: oklch(0.769 0.188 70.08)
+    '#8b5cf6', // extra: purple fallback
 ];
 
 const chartData = computed(() => ({
