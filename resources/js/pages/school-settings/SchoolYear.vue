@@ -199,8 +199,8 @@ function executeActivate() {
                                         </Label>
                                         <Switch
                                             :id="`enrollment-${semester.id}`"
-                                            :checked="semester.enrollment_open"
-                                            @update:checked="toggleEnrollment(semester.id, semester.enrollment_open)"
+                                            :model-value="semester.enrollment_open"
+                                            @update:model-value="toggleEnrollment(semester.id, semester.enrollment_open)"
                                         />
                                     </div>
                                     <Button

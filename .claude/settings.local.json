@@ -34,7 +34,8 @@
       "Bash(python3:*)",
       "Bash(where:*)",
       "Bash(npm run dev:*)",
-      "WebFetch(domain:www.shadcn-vue.com)"
+      "WebFetch(domain:www.shadcn-vue.com)",
+      "Bash(node -e:*)"
     ]
   }
 }

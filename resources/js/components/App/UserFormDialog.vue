@@ -164,8 +164,8 @@ function submit() {
                 <div v-if="user" class="flex items-center space-x-3">
                     <Switch
                         id="dlg_user_is_active"
-                        :checked="form.is_active"
-                        @update:checked="(val: boolean) => (form.is_active = val)"
+                        :model-value="form.is_active"
+                        @update:model-value="(val: boolean) => (form.is_active = val)"
                     />
                     <Label for="dlg_user_is_active">Active</Label>
                     <InputError :message="form.errors.is_active" />

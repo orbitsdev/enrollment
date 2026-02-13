@@ -232,8 +232,8 @@ function submit() {
                                         >
                                             <div class="flex items-center justify-center">
                                                 <Checkbox
-                                                    :checked="isStrandMapped(strand.id, col.grade_level, col.semester)"
-                                                    @update:checked="toggleStrandMapping(strand.id, col.grade_level, col.semester)"
+                                                    :model-value="isStrandMapped(strand.id, col.grade_level, col.semester)"
+                                                    @update:model-value="toggleStrandMapping(strand.id, col.grade_level, col.semester)"
                                                 />
                                             </div>
                                         </TableCell>

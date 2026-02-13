@@ -142,8 +142,8 @@ function submit() {
                 <div class="flex items-center space-x-3">
                     <Switch
                         id="is_active"
-                        :checked="form.is_active"
-                        @update:checked="(val: boolean) => (form.is_active = val)"
+                        :model-value="form.is_active"
+                        @update:model-value="(val: boolean) => (form.is_active = val)"
                     />
                     <Label for="is_active">Active</Label>
                     <InputError :message="form.errors.is_active" />

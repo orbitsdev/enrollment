@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { ChevronDown, ChevronRight, Edit2, Layers, Plus } from 'lucide-vue-next';
 import { ref } from 'vue';
+import { toast } from 'vue-sonner';
 import PageHeader from '@/components/App/PageHeader.vue';
 import StrandFormDialog from '@/components/App/StrandFormDialog.vue';
 import TrackFormDialog from '@/components/App/TrackFormDialog.vue';
@@ -60,8 +61,14 @@ function openEditTrackDialog(track: Track) {
 function toggleTrackActive(trackId: number, currentState: boolean) {
     router.put(
         `/curriculum/tracks/${trackId}/toggle-active`,
-        { is_active: !currentState },
-        { preserveScroll: true },
+        {},
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                usePage().props.flash = {};
+                toast.success(`Track ${currentState ? 'deactivated' : 'activated'} successfully.`);
+            },
+        },
     );
 }
 
@@ -85,8 +92,14 @@ function openEditStrandDialog(strand: Strand) {
 function toggleStrandActive(strandId: number, currentState: boolean) {
     router.put(
         `/curriculum/strands/${strandId}/toggle-active`,
-        { is_active: !currentState },
-        { preserveScroll: true },
+        {},
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                usePage().props.flash = {};
+                toast.success(`Strand ${currentState ? 'deactivated' : 'activated'} successfully.`);
+            },
+        },
     );
 }
 </script>
@@ -159,8 +172,8 @@ function toggleStrandActive(strandId: number, currentState: boolean) {
                                     </Label>
                                     <Switch
                                         :id="`track-active-${track.id}`"
-                                        :checked="track.is_active"
-                                        @update:checked="toggleTrackActive(track.id, track.is_active)"
+                                        :model-value="track.is_active"
+                                        @update:model-value="toggleTrackActive(track.id, track.is_active)"
                                     />
                                 </div>
                             </div>
@@ -234,8 +247,8 @@ function toggleStrandActive(strandId: number, currentState: boolean) {
                                                         <Edit2 class="size-3" />
                                                     </Button>
                                                     <Switch
-                                                        :checked="strand.is_active"
-                                                        @update:checked="toggleStrandActive(strand.id, strand.is_active)"
+                                                        :model-value="strand.is_active"
+                                                        @update:model-value="toggleStrandActive(strand.id, strand.is_active)"
                                                     />
                                                 </div>
                                             </TableCell>

@@ -659,8 +659,8 @@ function prevStep() {
                                 >
                                     <Checkbox
                                         :id="`subject-${subject.id}`"
-                                        :checked="form.subject_ids.includes(subject.id)"
-                                        @update:checked="(val: boolean) => toggleSubject(subject.id, val)"
+                                        :model-value="form.subject_ids.includes(subject.id)"
+                                        @update:model-value="(val: boolean) => toggleSubject(subject.id, val)"
                                     />
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2">
@@ -692,8 +692,8 @@ function prevStep() {
                                             <div class="flex items-center gap-2">
                                                 <Checkbox
                                                     id="prereq-override"
-                                                    :checked="prerequisiteOverride"
-                                                    @update:checked="(val: boolean) => (prerequisiteOverride = val)"
+                                                    :model-value="prerequisiteOverride"
+                                                    @update:model-value="(val: boolean) => (prerequisiteOverride = val)"
                                                 />
                                                 <label for="prereq-override" class="text-sm cursor-pointer">
                                                     Override prerequisite requirements (admin/registrar only)

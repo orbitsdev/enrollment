@@ -1,66 +1,35 @@
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3';
-import { computed, watch } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
+import { onMounted, onUnmounted } from 'vue';
 import { toast } from 'vue-sonner';
 import type { FlashMessages } from '@/types';
 
-const page = usePage();
-
-const flash = computed<FlashMessages>(
-    () => (page.props.flash as FlashMessages) ?? {},
-);
-
-function clearFlash(key: keyof FlashMessages) {
-    if (page.props.flash && typeof page.props.flash === 'object') {
-        (page.props.flash as Record<string, unknown>)[key] = undefined;
-    }
+function showFlash(flash: FlashMessages | undefined | null) {
+    if (!flash) return;
+    if (flash.success) toast.success(flash.success);
+    if (flash.error) toast.error(flash.error);
+    if (flash.warning) toast.warning(flash.warning);
+    if (flash.info) toast.info(flash.info);
 }
 
-watch(
-    () => flash.value.success,
-    (message) => {
-        if (message) {
-            toast.success(message);
-            clearFlash('success');
-        }
-    },
-    { immediate: true },
-);
+// Show flash on initial page load (e.g., after full-page redirect)
+const page = usePage();
+showFlash(page.props.flash as FlashMessages);
 
-watch(
-    () => flash.value.error,
-    (message) => {
-        if (message) {
-            toast.error(message);
-            clearFlash('error');
-        }
-    },
-    { immediate: true },
-);
+// Listen for all subsequent Inertia visits
+let removeListener: (() => void) | undefined;
 
-watch(
-    () => flash.value.warning,
-    (message) => {
-        if (message) {
-            toast.warning(message);
-            clearFlash('warning');
-        }
-    },
-    { immediate: true },
-);
+onMounted(() => {
+    removeListener = router.on('success', (event) => {
+        showFlash((event.detail.page.props.flash ?? {}) as FlashMessages);
+    });
+});
 
-watch(
-    () => flash.value.info,
-    (message) => {
-        if (message) {
-            toast.info(message);
-            clearFlash('info');
-        }
-    },
-    { immediate: true },
-);
+onUnmounted(() => {
+    removeListener?.();
+});
 </script>
 
 <template>
-    <!-- This component has no visual template; it triggers toasts via watchers -->
+    <!-- This component has no visual template; it triggers toasts via router events -->
 </template>
