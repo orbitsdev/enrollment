@@ -57,7 +57,7 @@ class EnrollmentController extends Controller
                 ->where('is_active', true)
                 ->orderBy('sort_order')
                 ->get(),
-            'activeSemester' => Semester::where('is_active', true)->first(),
+            'activeSemester' => Semester::with('schoolYear')->where('is_active', true)->first(),
         ]);
     }
 

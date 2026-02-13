@@ -31,4 +31,33 @@ class StudentSearchController extends Controller
             ])
         );
     }
+
+    /**
+     * Quick-create a student from the enrollment wizard.
+     */
+    public function quickCreate(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'lrn' => ['required', 'string', 'digits:12', 'unique:students,lrn'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'middle_name' => ['nullable', 'string', 'max:255'],
+            'gender' => ['required', 'string', 'in:male,female'],
+            'birthdate' => ['required', 'date'],
+        ]);
+
+        $student = Student::create([
+            ...$validated,
+            'status' => 'active',
+        ]);
+
+        return response()->json([
+            'student' => [
+                'id' => $student->id,
+                'lrn' => $student->lrn,
+                'full_name' => $student->full_name,
+                'status' => $student->status,
+            ],
+        ], 201);
+    }
 }

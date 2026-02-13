@@ -44,6 +44,7 @@ export interface Semester {
     updated_at: string;
     school_year?: SchoolYear;
     label?: string;
+    full_label?: string;
 }
 
 export interface Track {

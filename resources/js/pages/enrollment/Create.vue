@@ -6,13 +6,13 @@ import {
     ChevronLeft,
     ChevronRight,
     Loader2,
-    Plus,
     Search,
     UserPlus,
 } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import CapacityBar from '@/components/App/CapacityBar.vue';
 import PageHeader from '@/components/App/PageHeader.vue';
+import QuickStudentFormDialog from '@/components/App/QuickStudentFormDialog.vue';
 import StepIndicator from '@/components/App/StepIndicator.vue';
 import InputError from '@/components/InputError.vue';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -83,16 +83,7 @@ const studentSearch = ref('');
 const studentResults = ref<Student[]>([]);
 const selectedStudent = ref<Student | null>(null);
 const searchingStudents = ref(false);
-const showNewStudentForm = ref(false);
-
-const newStudentForm = useForm({
-    lrn: '',
-    last_name: '',
-    first_name: '',
-    middle_name: '',
-    gender: '',
-    birthdate: '',
-});
+const showQuickStudentDialog = ref(false);
 
 let studentSearchTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -130,18 +121,8 @@ function clearStudent() {
     form.student_id = null;
 }
 
-function submitNewStudent() {
-    newStudentForm.post('/api/students/quick-create', {
-        preserveScroll: true,
-        onSuccess: (page: any) => {
-            const student = page.props?.student ?? page.props?.flash?.student;
-            if (student) {
-                selectStudent(student);
-                showNewStudentForm.value = false;
-                newStudentForm.reset();
-            }
-        },
-    });
+function onStudentCreated(student: Student) {
+    selectStudent(student);
 }
 
 // ===== Step 2: Track & Strand =====
@@ -361,11 +342,11 @@ function prevStep() {
             </PageHeader>
 
             <!-- Step Indicator -->
-            <div class="mx-auto w-full max-w-3xl px-4">
+            <div class="w-full px-4">
                 <StepIndicator :steps="steps" :current-step="currentStep" />
             </div>
 
-            <div class="mx-auto w-full max-w-3xl">
+            <div class="w-full">
                 <!-- ==================== STEP 1: FIND STUDENT ==================== -->
                 <div v-show="currentStep === 0">
                     <Card>
@@ -446,100 +427,13 @@ function prevStep() {
 
                                 <!-- Add New Student -->
                                 <Button
-                                    v-if="!showNewStudentForm"
                                     variant="outline"
                                     class="w-full"
-                                    @click="showNewStudentForm = true"
+                                    @click="showQuickStudentDialog = true"
                                 >
                                     <UserPlus class="size-4" />
                                     Add New Student
                                 </Button>
-
-                                <div v-if="showNewStudentForm" class="space-y-4 rounded-lg border p-4">
-                                    <h4 class="font-medium">Quick Student Registration</h4>
-                                    <div class="grid gap-4 md:grid-cols-2">
-                                        <div class="space-y-2">
-                                            <Label for="new_lrn">LRN</Label>
-                                            <Input
-                                                id="new_lrn"
-                                                v-model="newStudentForm.lrn"
-                                                maxlength="12"
-                                                placeholder="12-digit LRN"
-                                            />
-                                            <InputError :message="newStudentForm.errors.lrn" />
-                                        </div>
-                                        <div class="space-y-2">
-                                            <Label for="new_gender">Gender</Label>
-                                            <Select v-model="newStudentForm.gender">
-                                                <SelectTrigger id="new_gender">
-                                                    <SelectValue placeholder="Select" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="male">Male</SelectItem>
-                                                    <SelectItem value="female">Female</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <InputError :message="newStudentForm.errors.gender" />
-                                        </div>
-                                    </div>
-                                    <div class="grid gap-4 md:grid-cols-2">
-                                        <div class="space-y-2">
-                                            <Label for="new_last_name">Last Name</Label>
-                                            <Input
-                                                id="new_last_name"
-                                                v-model="newStudentForm.last_name"
-                                                placeholder="Last name"
-                                            />
-                                            <InputError :message="newStudentForm.errors.last_name" />
-                                        </div>
-                                        <div class="space-y-2">
-                                            <Label for="new_first_name">First Name</Label>
-                                            <Input
-                                                id="new_first_name"
-                                                v-model="newStudentForm.first_name"
-                                                placeholder="First name"
-                                            />
-                                            <InputError :message="newStudentForm.errors.first_name" />
-                                        </div>
-                                    </div>
-                                    <div class="grid gap-4 md:grid-cols-2">
-                                        <div class="space-y-2">
-                                            <Label for="new_middle_name">Middle Name</Label>
-                                            <Input
-                                                id="new_middle_name"
-                                                v-model="newStudentForm.middle_name"
-                                                placeholder="Middle name (optional)"
-                                            />
-                                            <InputError :message="newStudentForm.errors.middle_name" />
-                                        </div>
-                                        <div class="space-y-2">
-                                            <Label for="new_birthdate">Birthdate</Label>
-                                            <Input
-                                                id="new_birthdate"
-                                                v-model="newStudentForm.birthdate"
-                                                type="date"
-                                            />
-                                            <InputError :message="newStudentForm.errors.birthdate" />
-                                        </div>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            @click="showNewStudentForm = false; newStudentForm.reset()"
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            :disabled="newStudentForm.processing"
-                                            @click="submitNewStudent"
-                                        >
-                                            <Plus class="size-4" />
-                                            Create & Select
-                                        </Button>
-                                    </div>
-                                </div>
                             </div>
 
                             <InputError :message="form.errors.student_id" />
@@ -622,7 +516,7 @@ function prevStep() {
                                 <div class="space-y-2">
                                     <Label>Semester</Label>
                                     <Input
-                                        :value="activeSemester?.label ?? (activeSemester ? `Semester ${activeSemester.number}` : 'No active semester')"
+                                        :value="activeSemester?.full_label ?? activeSemester?.label ?? 'No active semester'"
                                         disabled
                                     />
                                     <InputError :message="form.errors.semester_id" />
@@ -842,7 +736,7 @@ function prevStep() {
                                 <div>
                                     <h4 class="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Semester</h4>
                                     <p class="mt-1 font-medium">
-                                        {{ activeSemester?.label ?? `Semester ${activeSemester?.number}` }}
+                                        {{ activeSemester?.full_label ?? activeSemester?.label ?? 'N/A' }}
                                     </p>
                                 </div>
                             </div>
@@ -920,5 +814,12 @@ function prevStep() {
                 </div>
             </div>
         </div>
+
+        <!-- Quick Student Registration Dialog -->
+        <QuickStudentFormDialog
+            :open="showQuickStudentDialog"
+            @update:open="showQuickStudentDialog = $event"
+            @created="onStudentCreated"
+        />
     </AppLayout>
 </template>
