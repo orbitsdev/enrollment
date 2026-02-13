@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Plus } from 'lucide-vue-next';
+import { Pencil, Plus, PowerOff } from 'lucide-vue-next';
 import { ref } from 'vue';
 import DataTable from '@/components/App/DataTable.vue';
 import PageHeader from '@/components/App/PageHeader.vue';
@@ -22,7 +22,7 @@ type SubjectWithCount = Subject & { strands_count: number };
 
 const props = defineProps<{
     subjects: PaginatedData<SubjectWithCount>;
-    filters: { search: string; type: string; strand: string };
+    filters: { search: string; type: string; strand_id: string };
     types: Array<{ value: string; label: string }>;
     strands: Array<{ id: number; code: string; full_name: string }>;
 }>();
@@ -40,12 +40,12 @@ const columns = [
     { key: 'hours', label: 'Hours', class: 'w-[80px]' },
     { key: 'prerequisite', label: 'Prerequisite', class: 'w-[150px]' },
     { key: 'strands_count', label: 'Strands', class: 'w-[80px]' },
-    { key: 'actions', label: '', class: 'w-[100px] text-right' },
+    { key: 'actions', label: '', class: 'w-[180px] text-right' },
 ];
 
 const search = ref(props.filters.search ?? '');
 const typeFilter = ref(props.filters.type ?? '');
-const strandFilter = ref(props.filters.strand ?? '');
+const strandFilter = ref(props.filters.strand_id ?? '');
 
 const typeVariantMap: Record<string, 'default' | 'secondary' | 'outline'> = {
     core: 'default',
@@ -55,11 +55,11 @@ const typeVariantMap: Record<string, 'default' | 'secondary' | 'outline'> = {
 
 function applyFilters() {
     router.get(
-        '/curriculum/subjects',
+        '/subjects',
         {
             search: search.value || undefined,
             type: typeFilter.value || undefined,
-            strand: strandFilter.value || undefined,
+            strand_id: strandFilter.value || undefined,
         },
         {
             preserveState: true,
@@ -91,7 +91,7 @@ function onStrandChange(value: string) {
             >
                 <template #actions>
                     <Button as-child>
-                        <Link href="/curriculum/subjects/create">
+                        <Link href="/subjects/create">
                             <Plus class="size-4" />
                             Add Subject
                         </Link>
@@ -174,11 +174,25 @@ function onStrandChange(value: string) {
                     <TableCell>
                         {{ row.strands_count }}
                     </TableCell>
-                    <TableCell class="text-right">
+                    <TableCell class="text-right space-x-1">
                         <Button variant="ghost" size="sm" as-child>
-                            <Link :href="`/curriculum/subjects/${row.id}/edit`" prefetch>
+                            <Link :href="`/subjects/${row.id}/edit`" prefetch>
+                                <Pencil class="size-4" />
                                 Edit
                             </Link>
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            class="text-destructive hover:text-destructive"
+                            @click="
+                                if (confirm('Are you sure you want to deactivate this subject?')) {
+                                    router.delete(`/subjects/${row.id}`, { preserveScroll: true });
+                                }
+                            "
+                        >
+                            <PowerOff class="size-4" />
+                            Deactivate
                         </Button>
                     </TableCell>
                 </template>

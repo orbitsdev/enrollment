@@ -17,7 +17,7 @@ class SubjectController extends Controller
      */
     public function index(): Response
     {
-        $query = Subject::with('strands');
+        $query = Subject::with(['strands', 'prerequisite'])->withCount('strands');
 
         if ($type = request('type')) {
             $query->where('type', $type);
@@ -91,7 +91,7 @@ class SubjectController extends Controller
 
         return Inertia::render('curriculum/subjects/Edit', [
             'subject' => $subject,
-            'strands' => Strand::with('track')->active()->orderBy('sort_order')->get(),
+            'allStrands' => Strand::with('track')->active()->orderBy('sort_order')->get(),
             'subjects' => Subject::active()
                 ->where('id', '!=', $subject->id)
                 ->orderBy('name')

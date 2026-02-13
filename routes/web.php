@@ -123,7 +123,7 @@ Route::middleware('auth')->prefix('api')->group(function () {
     Route::post('students/quick-create', [StudentSearchController::class, 'quickCreate'])->name('api.students.quick-create');
     Route::post('students/duplicate-check', DuplicateCheckController::class)->name('api.students.duplicate-check');
     Route::get('enrollment/subjects', [EnrollmentApiController::class, 'getSubjectLoad'])->name('api.enrollment.subjects');
-    Route::post('enrollment/prerequisites', [EnrollmentApiController::class, 'checkPrerequisites'])->name('api.enrollment.prerequisites');
+    Route::match(['get', 'post'], 'enrollment/prerequisites', [EnrollmentApiController::class, 'checkPrerequisites'])->name('api.enrollment.prerequisites');
     Route::get('enrollment/sections', [EnrollmentApiController::class, 'getAvailableSections'])->name('api.enrollment.sections');
 });
 

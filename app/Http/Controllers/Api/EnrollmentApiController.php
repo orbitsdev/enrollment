@@ -34,7 +34,7 @@ class EnrollmentApiController extends Controller
             ->orderBy('subject_strand.sort_order')
             ->get();
 
-        return response()->json($subjects);
+        return response()->json(['subjects' => $subjects]);
     }
 
     /**
@@ -42,6 +42,15 @@ class EnrollmentApiController extends Controller
      */
     public function checkPrerequisites(Request $request): JsonResponse
     {
+        $subjectIds = $request->subject_ids;
+
+        // Accept comma-separated string (from GET query) or array (from POST body)
+        if (is_string($subjectIds)) {
+            $subjectIds = array_filter(explode(',', $subjectIds), fn ($v) => $v !== '');
+        }
+
+        $request->merge(['subject_ids' => $subjectIds]);
+
         $request->validate([
             'student_id' => ['required', 'integer', 'exists:students,id'],
             'subject_ids' => ['required', 'array'],
@@ -64,12 +73,7 @@ class EnrollmentApiController extends Controller
                     ->exists();
 
                 if (! $passed) {
-                    $issues[] = [
-                        'subject_id' => $subject->id,
-                        'subject_name' => $subject->name,
-                        'prerequisite' => $subject->prerequisite->name,
-                        'message' => "Prerequisite '{$subject->prerequisite->name}' not yet passed.",
-                    ];
+                    $issues[$subject->id] = "Prerequisite '{$subject->prerequisite->name}' not yet passed.";
                 }
             }
         }
@@ -109,6 +113,6 @@ class EnrollmentApiController extends Controller
                 ];
             });
 
-        return response()->json($sections);
+        return response()->json(['sections' => $sections]);
     }
 }

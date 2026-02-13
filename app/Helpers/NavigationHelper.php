@@ -41,6 +41,7 @@ class NavigationHelper
                 'label' => 'Academic',
                 'items' => [
                     ['title' => 'Curriculum', 'href' => '/curriculum', 'icon' => 'BookOpen'],
+                    ['title' => 'Subjects', 'href' => '/subjects', 'icon' => 'BookText'],
                     ['title' => 'Students', 'href' => '/students', 'icon' => 'GraduationCap'],
                     ['title' => 'Teachers', 'href' => '/teachers', 'icon' => 'UserCheck'],
                     ['title' => 'Sections', 'href' => '/sections', 'icon' => 'LayoutList'],

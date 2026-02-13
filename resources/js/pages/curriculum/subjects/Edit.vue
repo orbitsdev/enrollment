@@ -35,7 +35,7 @@ const props = defineProps<{
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Curriculum' },
-    { title: 'Subjects', href: '/curriculum/subjects' },
+    { title: 'Subjects', href: '/subjects' },
     { title: `Edit ${props.subject.name}` },
 ];
 
@@ -96,7 +96,7 @@ function toggleStrandMapping(strandId: number, gradeLevel: number, semester: num
 useUnsavedChangesGuard(form);
 
 function submit() {
-    form.put(`/curriculum/subjects/${props.subject.id}`, {
+    form.put(`/subjects/${props.subject.id}`, {
         preserveScroll: true,
     });
 }
@@ -113,7 +113,7 @@ function submit() {
             >
                 <template #actions>
                     <Button variant="outline" as-child>
-                        <Link href="/curriculum/subjects">Back to Subjects</Link>
+                        <Link href="/subjects">Back to Subjects</Link>
                     </Button>
                 </template>
             </PageHeader>
@@ -274,7 +274,7 @@ function submit() {
                 <!-- Form Actions -->
                 <div class="flex justify-end gap-4">
                     <Button variant="outline" type="button" as-child>
-                        <Link href="/curriculum/subjects">Cancel</Link>
+                        <Link href="/subjects">Cancel</Link>
                     </Button>
                     <Button type="submit" :disabled="form.processing">
                         Update Subject

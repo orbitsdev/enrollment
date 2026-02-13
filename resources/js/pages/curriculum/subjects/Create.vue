@@ -34,7 +34,7 @@ defineProps<{
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Curriculum' },
-    { title: 'Subjects', href: '/curriculum/subjects' },
+    { title: 'Subjects', href: '/subjects' },
     { title: 'Create Subject' },
 ];
 
@@ -76,7 +76,7 @@ function toggleStrandMapping(strandId: number, gradeLevel: number, semester: num
 useUnsavedChangesGuard(form);
 
 function submit() {
-    form.post('/curriculum/subjects', {
+    form.post('/subjects', {
         preserveScroll: true,
     });
 }
@@ -93,7 +93,7 @@ function submit() {
             >
                 <template #actions>
                     <Button variant="outline" as-child>
-                        <Link href="/curriculum/subjects">Cancel</Link>
+                        <Link href="/subjects">Cancel</Link>
                     </Button>
                 </template>
             </PageHeader>
@@ -254,7 +254,7 @@ function submit() {
                 <!-- Form Actions -->
                 <div class="flex justify-end gap-4">
                     <Button variant="outline" type="button" as-child>
-                        <Link href="/curriculum/subjects">Cancel</Link>
+                        <Link href="/subjects">Cancel</Link>
                     </Button>
                     <Button type="submit" :disabled="form.processing">
                         Create Subject

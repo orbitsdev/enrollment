@@ -22,14 +22,14 @@ class StudentSearchController extends Controller
             ->limit(10)
             ->get(['id', 'lrn', 'last_name', 'first_name', 'middle_name', 'suffix', 'status']);
 
-        return response()->json(
-            $students->map(fn ($student) => [
+        return response()->json([
+            'students' => $students->map(fn ($student) => [
                 'id' => $student->id,
                 'lrn' => $student->lrn,
                 'full_name' => $student->full_name,
                 'status' => $student->status,
-            ])
-        );
+            ]),
+        ]);
     }
 
     /**

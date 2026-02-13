@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             TrackStrandSeeder::class,
             SubjectSeeder::class,
             DemoDataSeeder::class,
+            EnrollmentTestSeeder::class,
         ]);
     }
 }

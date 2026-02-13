@@ -648,7 +648,7 @@ function prevStep() {
                                             </label>
                                         </div>
                                         <p class="text-sm text-muted-foreground">
-                                            Adviser: {{ section.adviser?.name ?? 'Not assigned' }}
+                                            Adviser: {{ section.adviser?.name ?? section.adviser ?? 'Not assigned' }}
                                         </p>
                                         <CapacityBar
                                             :current="section.enrolled_count ?? 0"
@@ -750,7 +750,7 @@ function prevStep() {
                                     {{ selectedSection?.name ?? '--' }}
                                 </p>
                                 <p class="text-sm text-muted-foreground">
-                                    Adviser: {{ selectedSection?.adviser?.name ?? 'Not assigned' }}
+                                    Adviser: {{ selectedSection?.adviser?.name ?? selectedSection?.adviser ?? 'Not assigned' }}
                                 </p>
                             </div>
 
