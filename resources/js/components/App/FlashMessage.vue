@@ -10,11 +10,18 @@ const flash = computed<FlashMessages>(
     () => (page.props.flash as FlashMessages) ?? {},
 );
 
+function clearFlash(key: keyof FlashMessages) {
+    if (page.props.flash && typeof page.props.flash === 'object') {
+        (page.props.flash as Record<string, unknown>)[key] = undefined;
+    }
+}
+
 watch(
     () => flash.value.success,
     (message) => {
         if (message) {
             toast.success(message);
+            clearFlash('success');
         }
     },
     { immediate: true },
@@ -25,6 +32,7 @@ watch(
     (message) => {
         if (message) {
             toast.error(message);
+            clearFlash('error');
         }
     },
     { immediate: true },
@@ -35,6 +43,7 @@ watch(
     (message) => {
         if (message) {
             toast.warning(message);
+            clearFlash('warning');
         }
     },
     { immediate: true },
@@ -45,6 +54,7 @@ watch(
     (message) => {
         if (message) {
             toast.info(message);
+            clearFlash('info');
         }
     },
     { immediate: true },

@@ -2,7 +2,6 @@
 import { Head, router } from '@inertiajs/vue3';
 import { ChevronDown, ChevronRight, Edit2, Layers, Plus } from 'lucide-vue-next';
 import { ref } from 'vue';
-import { toast } from 'vue-sonner';
 import PageHeader from '@/components/App/PageHeader.vue';
 import StrandFormDialog from '@/components/App/StrandFormDialog.vue';
 import TrackFormDialog from '@/components/App/TrackFormDialog.vue';
@@ -22,7 +21,7 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Strand, Track } from '@/types';
 
-defineProps<{
+const props = defineProps<{
     tracks: Track[];
 }>();
 
@@ -33,7 +32,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 // Track expand/collapse state
-const expandedTracks = ref<Set<number>>(new Set());
+const expandedTracks = ref<Set<number>>(new Set(props.tracks.map(t => t.id)));
 
 function toggleTrack(trackId: number) {
     if (expandedTracks.value.has(trackId)) {
@@ -62,13 +61,7 @@ function toggleTrackActive(trackId: number, currentState: boolean) {
     router.put(
         `/curriculum/tracks/${trackId}/toggle-active`,
         { is_active: !currentState },
-        {
-            preserveScroll: true,
-            onSuccess: (page) => {
-                page.props.flash = {};
-                toast.success(`Track ${currentState ? 'deactivated' : 'activated'} successfully.`);
-            },
-        },
+        { preserveScroll: true },
     );
 }
 
@@ -93,13 +86,7 @@ function toggleStrandActive(strandId: number, currentState: boolean) {
     router.put(
         `/curriculum/strands/${strandId}/toggle-active`,
         { is_active: !currentState },
-        {
-            preserveScroll: true,
-            onSuccess: (page) => {
-                page.props.flash = {};
-                toast.success(`Strand ${currentState ? 'deactivated' : 'activated'} successfully.`);
-            },
-        },
+        { preserveScroll: true },
     );
 }
 </script>

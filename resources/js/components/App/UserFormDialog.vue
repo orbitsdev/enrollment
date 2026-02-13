@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import { watch } from 'vue';
-import { toast } from 'vue-sonner';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -69,18 +68,14 @@ function submit() {
     if (props.user) {
         form.put(`/users/${props.user.id}`, {
             preserveScroll: true,
-            onSuccess: (page) => {
-                page.props.flash = {};
-                toast.success('User updated successfully.');
+            onSuccess: () => {
                 emit('update:open', false);
             },
         });
     } else {
         form.post('/users', {
             preserveScroll: true,
-            onSuccess: (page) => {
-                page.props.flash = {};
-                toast.success('User created successfully.');
+            onSuccess: () => {
                 emit('update:open', false);
             },
         });

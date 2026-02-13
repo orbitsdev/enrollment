@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import { watch } from 'vue';
-import { toast } from 'vue-sonner';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -52,18 +51,14 @@ function submit() {
     if (props.strand) {
         form.put(`/curriculum/strands/${props.strand.id}`, {
             preserveScroll: true,
-            onSuccess: (page) => {
-                page.props.flash = {};
-                toast.success('Strand updated successfully.');
+            onSuccess: () => {
                 emit('update:open', false);
             },
         });
     } else {
         form.transform((data) => ({ ...data, track_id: props.trackId })).post('/curriculum/strands', {
             preserveScroll: true,
-            onSuccess: (page) => {
-                page.props.flash = {};
-                toast.success('Strand created successfully.');
+            onSuccess: () => {
                 emit('update:open', false);
             },
         });
