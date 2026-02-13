@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { type BreadcrumbItem, type Section, type Subject, type Student } from '@/types';
 
@@ -45,6 +44,8 @@ function applyFilter() {
         preserveScroll: true,
     });
 }
+
+watch(subjectId, () => applyFilter());
 
 function onSectionChange() {
     subjectId.value = '';
@@ -98,7 +99,6 @@ function onSectionChange() {
                             </option>
                         </select>
                     </div>
-                    <Button @click="applyFilter" size="sm">Apply Filter</Button>
                 </CardContent>
             </Card>
 

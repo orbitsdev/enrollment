@@ -58,7 +58,7 @@ function setActiveSemester(semesterId: number) {
 }
 
 function toggleEnrollment(semesterId: number, currentState: boolean) {
-    router.put(
+    router.post(
         `/semesters/${semesterId}/toggle-enrollment`,
         { enrollment_open: !currentState },
         { preserveScroll: true },

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
 import { Download, GraduationCap, Layers, BarChart3, Users } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -39,6 +39,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const selectedSemesterId = ref(props.filters.semester_id ?? props.selected_semester?.id?.toString() ?? '');
+
+watch(selectedSemesterId, () => applyFilter());
 
 function applyFilter() {
     router.reload({
@@ -119,7 +121,6 @@ const gradeLevelCount = computed(() => Object.keys(props.report_data.by_grade_le
                         </SelectContent>
                     </Select>
                 </div>
-                <Button @click="applyFilter" size="sm">Apply Filter</Button>
             </div>
 
             <template v-if="report_data.total">

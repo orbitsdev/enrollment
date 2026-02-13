@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,17 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const strandId = ref(props.filters.strand_id ?? '');
 const status = ref(props.filters.status ?? '');
+
+watch([strandId, status], () => {
+    router.get('/reports/masterlist', {
+        strand_id: strandId.value || undefined,
+        status: status.value || undefined,
+        page: 1,
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+});
 
 const statuses = [
     { value: '', label: 'All Statuses' },
@@ -104,7 +115,6 @@ function statusColor(s: string): 'default' | 'secondary' | 'destructive' | 'outl
                             <option v-for="s in statuses" :key="s.value" :value="s.value">{{ s.label }}</option>
                         </select>
                     </div>
-                    <Button @click="applyFilter" size="sm">Apply Filter</Button>
                 </CardContent>
             </Card>
 

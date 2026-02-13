@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const selectedSectionId = ref(props.filters.section_id ?? '');
+
+watch(selectedSectionId, () => applyFilter());
 
 function applyFilter() {
     router.get('/reports/class-list', {
@@ -83,7 +85,6 @@ function printList() {
                             </option>
                         </select>
                     </div>
-                    <Button @click="applyFilter" size="sm">View Class List</Button>
                 </CardContent>
             </Card>
 

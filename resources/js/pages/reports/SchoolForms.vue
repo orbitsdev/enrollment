@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const sectionId = ref(props.filters.section_id ?? '');
+
+watch(sectionId, () => applyFilter());
 
 function applyFilter() {
     router.get('/reports/school-forms', {
@@ -136,7 +138,6 @@ function downloadSF10(studentId: number) {
                             </option>
                         </select>
                     </div>
-                    <Button @click="applyFilter" size="sm">Load Students</Button>
                 </CardContent>
             </Card>
 
