@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import StatCard from '@/components/App/StatCard.vue';
 import EnrollmentByTrackChart from '@/components/Charts/EnrollmentByTrackChart.vue';
@@ -8,7 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Users, UserCheck, LayoutGrid, GraduationCap } from 'lucide-vue-next';
+import { Users, UserCheck, LayoutGrid, GraduationCap, CalendarDays } from 'lucide-vue-next';
+import { computed } from 'vue';
+
+const page = usePage();
+const activeSemester = computed(() => page.props.activeSemester as { label: string; enrollment_open: boolean; school_year: { name: string } } | null);
 
 interface Enrollment {
     id: number;
@@ -50,6 +54,20 @@ function formatDate(dateStr: string): string {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 md:p-6">
+            <!-- Active Semester Banner -->
+            <div v-if="activeSemester" class="flex items-center gap-3 rounded-lg border bg-card px-4 py-3 text-sm">
+                <CalendarDays class="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span class="font-medium">{{ activeSemester.school_year?.name }}</span>
+                <span class="text-muted-foreground">&middot;</span>
+                <span>{{ activeSemester.label }}</span>
+                <Badge :variant="activeSemester.enrollment_open ? 'default' : 'secondary'" class="ml-auto">
+                    {{ activeSemester.enrollment_open ? 'Enrollment Open' : 'Enrollment Closed' }}
+                </Badge>
+            </div>
+            <div v-else class="rounded-lg border border-dashed px-4 py-3 text-sm text-muted-foreground">
+                No active semester. Go to School Settings to set one up.
+            </div>
+
             <!-- Stat Cards -->
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard
