@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Pencil, Plus, PowerOff } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { Pencil, Plus, Power, PowerOff } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
+import ConfirmDialog from '@/components/App/ConfirmDialog.vue';
 import DataTable from '@/components/App/DataTable.vue';
 import PageHeader from '@/components/App/PageHeader.vue';
 import SearchInput from '@/components/App/SearchInput.vue';
@@ -22,7 +23,7 @@ type SubjectWithCount = Subject & { strands_count: number };
 
 const props = defineProps<{
     subjects: PaginatedData<SubjectWithCount>;
-    filters: { search: string; type: string; strand_id: string };
+    filters: { search: string; type: string; strand_id: string; status: string };
     types: Array<{ value: string; label: string }>;
     strands: Array<{ id: number; code: string; full_name: string }>;
 }>();
@@ -46,6 +47,7 @@ const columns = [
 const search = ref(props.filters.search ?? '');
 const typeFilter = ref(props.filters.type ?? '');
 const strandFilter = ref(props.filters.strand_id ?? '');
+const statusFilter = ref(props.filters.status ?? 'all');
 
 const typeVariantMap: Record<string, 'default' | 'secondary' | 'outline'> = {
     core: 'default',
@@ -60,6 +62,7 @@ function applyFilters() {
             search: search.value || undefined,
             type: typeFilter.value || undefined,
             strand_id: strandFilter.value || undefined,
+            status: statusFilter.value || undefined,
         },
         {
             preserveState: true,
@@ -77,6 +80,47 @@ function onTypeChange(value: string) {
 function onStrandChange(value: string) {
     strandFilter.value = value === 'all' ? '' : value;
     applyFilters();
+}
+
+function onStatusChange(value: string) {
+    statusFilter.value = value;
+    applyFilters();
+}
+
+const confirmOpen = ref(false);
+const confirmSubject = ref<SubjectWithCount | null>(null);
+const confirmProcessing = ref(false);
+
+function promptToggle(subject: SubjectWithCount) {
+    confirmSubject.value = subject;
+    confirmOpen.value = true;
+}
+
+function executeToggle() {
+    if (!confirmSubject.value) return;
+
+    confirmProcessing.value = true;
+    const subject = confirmSubject.value;
+
+    if (subject.is_active) {
+        router.delete(`/subjects/${subject.id}`, {
+            preserveScroll: true,
+            onFinish: () => {
+                confirmProcessing.value = false;
+                confirmOpen.value = false;
+                confirmSubject.value = null;
+            },
+        });
+    } else {
+        router.post(`/subjects/${subject.id}/restore`, {}, {
+            preserveScroll: true,
+            onFinish: () => {
+                confirmProcessing.value = false;
+                confirmOpen.value = false;
+                confirmSubject.value = null;
+            },
+        });
+    }
 }
 </script>
 
@@ -142,6 +186,19 @@ function onStrandChange(value: string) {
                         </SelectItem>
                     </SelectContent>
                 </Select>
+                <Select
+                    :model-value="statusFilter"
+                    @update:model-value="onStatusChange"
+                >
+                    <SelectTrigger class="w-[150px]">
+                        <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="all">All</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
 
             <!-- DataTable -->
@@ -156,6 +213,7 @@ function onStrandChange(value: string) {
                     </TableCell>
                     <TableCell class="font-medium">
                         {{ row.name }}
+                        <Badge v-if="!row.is_active" variant="destructive" class="ml-2">Inactive</Badge>
                     </TableCell>
                     <TableCell>
                         <Badge :variant="typeVariantMap[row.type] ?? 'secondary'">
@@ -182,17 +240,24 @@ function onStrandChange(value: string) {
                             </Link>
                         </Button>
                         <Button
+                            v-if="row.is_active"
                             variant="ghost"
                             size="sm"
                             class="text-destructive hover:text-destructive"
-                            @click="
-                                if (confirm('Are you sure you want to deactivate this subject?')) {
-                                    router.delete(`/subjects/${row.id}`, { preserveScroll: true });
-                                }
-                            "
+                            @click="promptToggle(row)"
                         >
                             <PowerOff class="size-4" />
                             Deactivate
+                        </Button>
+                        <Button
+                            v-else
+                            variant="ghost"
+                            size="sm"
+                            class="text-green-600 hover:text-green-600"
+                            @click="promptToggle(row)"
+                        >
+                            <Power class="size-4" />
+                            Reactivate
                         </Button>
                     </TableCell>
                 </template>
@@ -228,5 +293,20 @@ function onStrandChange(value: string) {
                 </div>
             </div>
         </div>
+
+        <ConfirmDialog
+            :open="confirmOpen"
+            :title="confirmSubject?.is_active ? 'Deactivate Subject' : 'Reactivate Subject'"
+            :description="
+                confirmSubject?.is_active
+                    ? `Are you sure you want to deactivate '${confirmSubject?.name}'? It will be hidden from the active subjects list.`
+                    : `Are you sure you want to reactivate '${confirmSubject?.name}'? It will appear in the active subjects list again.`
+            "
+            :confirm-text="confirmSubject?.is_active ? 'Deactivate' : 'Reactivate'"
+            :variant="confirmSubject?.is_active ? 'destructive' : 'default'"
+            :processing="confirmProcessing"
+            @confirm="executeToggle"
+            @cancel="confirmOpen = false; confirmSubject = null"
+        />
     </AppLayout>
 </template>

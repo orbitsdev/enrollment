@@ -70,6 +70,7 @@ Route::middleware(['auth', 'role:admin|registrar'])->group(function () {
     Route::put('curriculum/tracks/{track}/toggle-active', [CurriculumController::class, 'toggleTrackActive'])->name('curriculum.tracks.toggle-active');
     Route::put('curriculum/strands/{strand}/toggle-active', [CurriculumController::class, 'toggleStrandActive'])->name('curriculum.strands.toggle-active');
     Route::resource('subjects', SubjectController::class);
+    Route::post('subjects/{subject}/restore', [SubjectController::class, 'restore'])->name('subjects.restore');
 
     // Students
     Route::resource('students', StudentController::class);

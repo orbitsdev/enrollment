@@ -19,6 +19,13 @@ class SubjectController extends Controller
     {
         $query = Subject::with(['strands', 'prerequisite'])->withCount('strands');
 
+        $status = request('status', 'all');
+        if ($status === 'active') {
+            $query->where('is_active', true);
+        } elseif ($status === 'inactive') {
+            $query->where('is_active', false);
+        }
+
         if ($type = request('type')) {
             $query->where('type', $type);
         }
@@ -44,6 +51,7 @@ class SubjectController extends Controller
                 'search' => request('search', ''),
                 'type' => request('type', ''),
                 'strand_id' => request('strand_id', ''),
+                'status' => request('status', 'all'),
             ],
             'types' => collect(SubjectType::cases())->map(fn ($type) => [
                 'value' => $type->value,
@@ -125,6 +133,16 @@ class SubjectController extends Controller
         $subject->update(['is_active' => false]);
 
         return redirect()->route('subjects.index')->with('success', 'Subject deactivated successfully.');
+    }
+
+    /**
+     * Reactivate the specified subject.
+     */
+    public function restore(Subject $subject): RedirectResponse
+    {
+        $subject->update(['is_active' => true]);
+
+        return redirect()->route('subjects.index')->with('success', 'Subject reactivated successfully.');
     }
 
     /**

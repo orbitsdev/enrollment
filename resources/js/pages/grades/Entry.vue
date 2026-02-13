@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ArrowLeft, Lock, Loader2, Save, Unlock } from 'lucide-vue-next';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { ArrowLeft, Lock, Loader2, Save, ShieldAlert, Unlock } from 'lucide-vue-next';
 import { useUnsavedChangesGuard } from '@/composables/useUnsavedChangesGuard';
 import { computed, ref } from 'vue';
 import ConfirmDialog from '@/components/App/ConfirmDialog.vue';
@@ -41,6 +41,9 @@ const props = defineProps<{
         passing_grade: number;
     };
 }>();
+
+const page = usePage();
+const isAdmin = computed(() => (page.props.auth as any).user?.role === 'admin');
 
 const sectionSemesterLabel = props.section.semester?.full_label ?? '';
 
@@ -199,6 +202,7 @@ const failingCount = computed(() =>
                 <span v-if="allLocked" class="ml-auto flex items-center gap-1 text-yellow-600 dark:text-yellow-400">
                     <Lock class="size-4" />
                     All grades are locked
+                    <span v-if="!isAdmin" class="text-muted-foreground">— Contact an administrator to unlock</span>
                 </span>
             </div>
 
@@ -228,13 +232,23 @@ const failingCount = computed(() =>
                                     Lock Grades
                                 </Button>
                                 <Button
-                                    v-if="allLocked"
+                                    v-if="allLocked && isAdmin"
                                     type="button"
                                     variant="outline"
                                     @click="showUnlockConfirm = true"
                                 >
                                     <Unlock class="size-4" />
                                     Unlock Grades
+                                </Button>
+                                <Button
+                                    v-if="allLocked && !isAdmin"
+                                    type="button"
+                                    variant="outline"
+                                    disabled
+                                    @click="showAdminOnly = true"
+                                >
+                                    <Lock class="size-4" />
+                                    Grades Locked
                                 </Button>
                             </div>
                         </div>
