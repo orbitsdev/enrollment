@@ -13,6 +13,7 @@ class Student extends Model
     use StudentRelations, StudentScopes;
 
     protected $fillable = [
+        'user_id',
         'lrn',
         'last_name',
         'first_name',

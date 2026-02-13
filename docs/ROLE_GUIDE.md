@@ -24,7 +24,9 @@ All test accounts use the password: **`password`**
 | Teacher | `ana.garcia@school.edu.ph` | Ana Garcia |
 | Teacher | `carlos.mendoza@school.edu.ph` | Carlos Mendoza |
 | Teacher | `rosa.rivera@school.edu.ph` | Rosa Rivera |
-| Student | _(no login — portal access via student role)_ | — |
+| Student | `student1@school.edu.ph` | (demo student 1) |
+| Student | `student2@school.edu.ph` | (demo student 2) |
+| Student | `student3@school.edu.ph` | (demo student 3) |
 
 ## Page Access by Role
 

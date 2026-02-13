@@ -103,17 +103,9 @@ class StudentPortalController extends Controller
 
     /**
      * Get the student record linked to the currently authenticated user.
-     * Assumes student LRN or a user-student link exists.
      */
     protected function getStudentForAuthUser(): ?Student
     {
-        $user = Auth::user();
-
-        // Try to find student by matching email or name
-        // In a real app, you'd have a user_id foreign key on the students table
-        // For now, we match by name
-        return Student::where('first_name', 'like', explode(' ', $user->name)[0] ?? '')
-            ->orWhereRaw("CONCAT(first_name, ' ', last_name) = ?", [$user->name])
-            ->first();
+        return Student::where('user_id', Auth::id())->first();
     }
 }

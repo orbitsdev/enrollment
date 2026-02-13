@@ -361,6 +361,19 @@ class DemoDataSeeder extends Seeder
                 'status' => $status->value,
             ]);
 
+            // Create user accounts for the first 3 students for testing
+            if ($i < 3) {
+                $user = User::create([
+                    'name' => $firstName . ' ' . $lastName,
+                    'email' => 'student' . ($i + 1) . '@school.edu.ph',
+                    'password' => Hash::make('password'),
+                    'is_active' => true,
+                    'email_verified_at' => now(),
+                ]);
+                $user->assignRole(UserRole::Student->value);
+                $student->update(['user_id' => $user->id]);
+            }
+
             $students->push($student);
         }
 
