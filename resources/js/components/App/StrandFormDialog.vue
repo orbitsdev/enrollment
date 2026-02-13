@@ -29,6 +29,7 @@ const emit = defineEmits<{
 const form = useForm({
     name: '',
     code: '',
+    course: '',
 });
 
 watch(
@@ -38,6 +39,7 @@ watch(
             if (props.strand) {
                 form.name = props.strand.name;
                 form.code = props.strand.code;
+                form.course = props.strand.course ?? '';
             } else {
                 form.reset();
             }
@@ -100,6 +102,18 @@ function submit() {
                         placeholder="e.g. STEM"
                     />
                     <InputError :message="form.errors.code" />
+                </div>
+
+                <div class="space-y-2">
+                    <Label for="dlg_strand_course">TESDA Course</Label>
+                    <Input
+                        id="dlg_strand_course"
+                        v-model="form.course"
+                        type="text"
+                        placeholder="e.g. Computer System Servicing (NC II)"
+                    />
+                    <p class="text-xs text-muted-foreground">For TVL strands only. Leave blank for Academic strands.</p>
+                    <InputError :message="form.errors.course" />
                 </div>
 
                 <DialogFooter>

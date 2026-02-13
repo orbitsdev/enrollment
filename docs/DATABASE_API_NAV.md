@@ -25,6 +25,8 @@
 14 — audit_logs
 15 — Spatie permission tables (auto-published)
 16 — Spatie media library tables (auto-published)
+17 — teacher_profiles (SF7 teacher profiling)
+18 — teacher_trainings (training records per teacher)
 ```
 
 ---
@@ -105,6 +107,7 @@ Schema::create('strands', function (Blueprint $table) {
     $table->foreignId('track_id')->constrained()->cascadeOnDelete();
     $table->string('name');                    // "STEM", "ABM"
     $table->string('code', 10);                // "STEM", "ABM"
+    $table->string('course')->nullable();       // TVL TESDA course name (e.g., "Computer System Servicing NC II")
     $table->boolean('is_active')->default(true);
     $table->integer('sort_order')->default(0);
     $table->timestamps();
@@ -174,6 +177,10 @@ Schema::create('students', function (Blueprint $table) {
     $table->string('guardian_contact')->nullable();
     $table->string('guardian_relationship')->nullable();
     $table->string('previous_school')->nullable();
+    $table->string('religion', 50)->nullable();               // SF1 field
+    $table->string('learning_modality', 30)->default('Face to Face'); // SF1 field
+    $table->string('father_name', 200)->nullable();          // SF1 field
+    $table->string('mother_name', 200)->nullable();          // SF1 field
     $table->string('status')->default('active'); // active, transferred, dropped, graduated
     $table->timestamps();
 });

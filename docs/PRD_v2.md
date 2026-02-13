@@ -45,7 +45,7 @@ That's it. No more, no less.
 | Frontend | Vue 3 (Composition API + `<script setup>`) |
 | SPA Bridge | Inertia.js v2 |
 | UI Components | shadcn-vue + Tailwind CSS v4 |
-| Auth | Laravel Breeze (Inertia + Vue) |
+| Auth | Laravel Fortify (via Vue + Inertia Starter Kit) |
 | Roles & Permissions | Spatie Laravel Permission |
 | Database | MySQL 8 |
 | PDF Export | barryvdh/laravel-dompdf |
@@ -702,7 +702,7 @@ User         → has many → Sections (as adviser)
 
 | Phase | What | Weeks | Why This Order |
 |---|---|---|---|
-| **0** | Project setup: Laravel + Breeze + packages + folder structure + seeders | Week 1 | Foundation — see ARCHITECTURE.md for setup commands |
+| **0** | Project setup: Laravel + Fortify/Starter Kit + packages + folder structure + seeders | Week 1 | Foundation — see ARCHITECTURE.md for setup commands |
 | **1** | Auth + Users + School Year/Semester + Settings | Week 2-3 | Everything depends on auth and school year context |
 | **2** | Curriculum setup (Tracks, Strands, Subjects) | Week 4-5 | Must exist before enrollment works |
 | **3** | Student CRUD + Section CRUD | Week 6-7 | Must exist before enrollment works |

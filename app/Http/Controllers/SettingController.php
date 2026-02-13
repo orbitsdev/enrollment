@@ -23,16 +23,21 @@ class SettingController extends Controller
     }
 
     /**
-     * Batch update settings from key => value pairs.
+     * Batch update settings from form data.
      */
     public function update(Request $request): RedirectResponse
     {
-        $request->validate([
-            'settings' => 'required|array',
-        ]);
+        $allowedKeys = [
+            'school_name', 'school_id', 'school_address',
+            'district', 'division', 'region',
+            'passing_grade', 'midterm_weight', 'finals_weight',
+            'default_capacity',
+        ];
 
-        foreach ($request->settings as $key => $value) {
-            SchoolSetting::set($key, $value);
+        foreach ($allowedKeys as $key) {
+            if ($request->has($key)) {
+                SchoolSetting::set($key, $request->input($key, ''));
+            }
         }
 
         return redirect()->back()->with('success', 'Settings updated successfully.');

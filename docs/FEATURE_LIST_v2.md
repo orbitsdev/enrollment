@@ -8,14 +8,14 @@
 
 | # | Feature | What It Does | Difficulty |
 |---|---|---|---|
-| 1.1 | Login / Logout | Email + password login, "remember me", logout | 🟢 Easy — Laravel Breeze gives this for free |
+| 1.1 | Login / Logout | Email + password login, "remember me", logout | 🟢 Easy — Laravel Fortify + Starter Kit handles this |
 | 1.2 | User Accounts | Admin creates accounts for staff, edit profile, deactivate | 🟢 Easy — standard CRUD |
 | 1.3 | 4 Roles | Admin, Registrar, Teacher, Student — assigned on account creation | 🟢 Easy — single `role` column on `users` table |
 | 1.4 | Role-Based Access | Each role sees only their pages, Laravel Policies on every controller | 🟢 Easy — `Gate::define` + `$this->authorize()` |
 
 **Pages:** `/login`, `/users`, `/users/create`, `/users/{id}/edit`, `/profile`
 
-**Total: 4 features — all easy. Breeze does 70% of the work.**
+**Total: 4 features — all easy. Laravel Fortify + Starter Kit does 70% of the work.**
 
 ---
 
@@ -224,7 +224,7 @@ POST /grades/batch
 
 | Module | Features | v1 Difficulty | v2 Difficulty (Honest) | Why Changed |
 |---|---|---|---|---|
-| Authentication & Users | 4 | 🟢 Easy | 🟢 Easy | Same — Breeze handles it |
+| Authentication & Users | 4 | 🟢 Easy | 🟢 Easy | Same — Fortify + Starter Kit handles it |
 | School Year & Semester | 3 | 🟢 Easy | 🟢 Easy | Same |
 | Curriculum & Subjects | 5 | 🟡 Medium | 🟡 Medium | Same — pivot table UI needs care |
 | Student Records | 5 | 🟢 Easy | 🟢 Easy | Added duplicate detection, still easy |

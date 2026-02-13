@@ -45,8 +45,12 @@ const form = useForm({
     suffix: '',
     birthdate: '',
     gender: '',
+    religion: '',
+    learning_modality: 'Face to Face',
     address: '',
     contact_number: '',
+    father_name: '',
+    mother_name: '',
     guardian_name: '',
     guardian_contact: '',
     guardian_relationship: '',
@@ -308,6 +312,34 @@ function submit() {
                                 </Select>
                                 <InputError :message="form.errors.gender" />
                             </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <Label for="religion">Religion</Label>
+                                    <Input
+                                        id="religion"
+                                        v-model="form.religion"
+                                        type="text"
+                                        placeholder="e.g., Christianity, Islam"
+                                    />
+                                    <InputError :message="form.errors.religion" />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <Label for="learning_modality">Learning Modality</Label>
+                                    <Select v-model="form.learning_modality">
+                                        <SelectTrigger id="learning_modality">
+                                            <SelectValue placeholder="Select modality" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Face to Face">Face to Face</SelectItem>
+                                            <SelectItem value="Blended">Blended</SelectItem>
+                                            <SelectItem value="Modular">Modular</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <InputError :message="form.errors.learning_modality" />
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -344,8 +376,32 @@ function submit() {
                     <!-- Step 3: Guardian Information -->
                     <Card v-show="currentStep === 3">
                         <CardContent class="space-y-4 pt-6">
-                            <h3 class="text-lg font-semibold">Guardian Information</h3>
-                            <p class="text-sm text-muted-foreground">Parent or guardian details.</p>
+                            <h3 class="text-lg font-semibold">Family & Guardian Information</h3>
+                            <p class="text-sm text-muted-foreground">Parents and guardian details (per SF1).</p>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <Label for="father_name">Father's Name</Label>
+                                    <Input
+                                        id="father_name"
+                                        v-model="form.father_name"
+                                        type="text"
+                                        placeholder="Full name of father"
+                                    />
+                                    <InputError :message="form.errors.father_name" />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <Label for="mother_name">Mother's Name</Label>
+                                    <Input
+                                        id="mother_name"
+                                        v-model="form.mother_name"
+                                        type="text"
+                                        placeholder="Full name of mother"
+                                    />
+                                    <InputError :message="form.errors.mother_name" />
+                                </div>
+                            </div>
 
                             <div class="space-y-2">
                                 <Label for="guardian_name">Guardian Name</Label>

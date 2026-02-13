@@ -11,6 +11,7 @@ import {
     Settings,
     Upload,
     User,
+    UserCheck,
     Users,
 } from 'lucide-vue-next';
 import type { Component } from 'vue';
@@ -41,6 +42,7 @@ const iconMap: Record<string, Component> = {
     Settings,
     BookOpen,
     GraduationCap,
+    UserCheck,
     LayoutList,
     ClipboardList,
     FileSpreadsheet,

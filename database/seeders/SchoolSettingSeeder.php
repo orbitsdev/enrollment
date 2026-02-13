@@ -14,8 +14,11 @@ class SchoolSettingSeeder extends Seeder
     {
         $settings = [
             'school_name' => 'Lake Sebu National High School',
-            'school_id' => '',
+            'school_id' => '304550',
             'school_address' => 'Lake Sebu, South Cotabato',
+            'district' => 'Lake Sebu East',
+            'division' => 'South Cotabato',
+            'region' => 'Region XII',
             'passing_grade' => '75',
             'midterm_weight' => '50',
             'finals_weight' => '50',

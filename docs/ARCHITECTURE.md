@@ -11,7 +11,7 @@
 | Package | Purpose | Install |
 |---|---|---|
 | **Laravel 11** | Framework | `laravel new lsnhs-enrollment` |
-| **Laravel Breeze** | Auth scaffolding (Inertia + Vue) | `composer require laravel/breeze --dev` |
+| **Laravel Fortify** | Auth backend (login, register, 2FA, etc.) | Ships with Laravel 12 Starter Kit |
 | **Spatie Laravel Permission** | Role & permission management (Admin, Registrar, Teacher, Student) | `composer require spatie/laravel-permission` |
 | **Spatie Laravel MediaLibrary** | File uploads (student docs, import files) | `composer require spatie/laravel-medialibrary` |
 | **Maatwebsite Laravel Excel** | Excel import/export (SF1, SF5, student import) | `composer require maatwebsite/excel` |
@@ -25,11 +25,11 @@
 
 | Package | Purpose | Install |
 |---|---|---|
-| **Vue 3** | Frontend framework (Composition API + `<script setup>`) | Ships with Breeze |
-| **Inertia.js v2** | SPA bridge — no separate API | Ships with Breeze |
+| **Vue 3** | Frontend framework (Composition API + `<script setup>`) | Ships with Starter Kit |
+| **Inertia.js v2** | SPA bridge — no separate API | Ships with Starter Kit |
 | **@inertiaui/modal-vue** | Route-based modals — `ModalLink` + `Modal` components | `npm i @inertiaui/modal-vue` |
 | **shadcn-vue** | UI component library (Button, Input, Select, Dialog, Table, etc.) | `npx shadcn-vue@latest init` |
-| **Tailwind CSS v4** | Utility-first CSS | Ships with Breeze |
+| **Tailwind CSS v4** | Utility-first CSS | Ships with Starter Kit |
 | **vue-chartjs + chart.js** | Dashboard charts (enrollment by track, section capacity) | `npm i vue-chartjs chart.js` |
 | **@vueuse/core** | Utility composables (useDebounce, useIntersectionObserver, etc.) | `npm i @vueuse/core` |
 | **Vite** | Build tool + HMR | Ships with Laravel |
@@ -39,7 +39,7 @@
 | Removed | Why |
 |---|---|
 | ONgDB / Graph Database | Not needed — MySQL handles everything. Dropped from capstone scope. |
-| Ziggy (Laravel routes in JS) | Inertia `route()` helper via Breeze is sufficient |
+| Ziggy (Laravel routes in JS) | Inertia `route()` helper via Starter Kit is sufficient |
 | Pinia | Inertia shared data + `usePage()` covers our state needs |
 
 ---
@@ -68,7 +68,7 @@ lsnhs-enrollment/
 │   │
 │   ├── Http/
 │   │   ├── Controllers/
-│   │   │   ├── Auth/                     # Breeze controllers (login, register, etc.)
+│   │   │   ├── Auth/                     # Auth controllers (login, register, etc.)
 │   │   │   ├── DashboardController.php
 │   │   │   ├── StudentController.php
 │   │   │   ├── EnrollmentController.php
@@ -1039,9 +1039,8 @@ Run in production: `php artisan db:seed --class=RoleSeeder` (only essentials)
 composer create-project laravel/laravel lsnhs-enrollment
 cd lsnhs-enrollment
 
-# Install Breeze with Inertia + Vue
-composer require laravel/breeze --dev
-php artisan breeze:install vue --ssr
+# Laravel 12 uses the Vue + Inertia Starter Kit (includes Fortify)
+# See: https://laravel.com/docs/12.x/starter-kits
 
 # Install PHP packages
 composer require spatie/laravel-permission

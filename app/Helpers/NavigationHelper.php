@@ -42,6 +42,7 @@ class NavigationHelper
                 'items' => [
                     ['title' => 'Curriculum', 'href' => '/curriculum', 'icon' => 'BookOpen'],
                     ['title' => 'Students', 'href' => '/students', 'icon' => 'GraduationCap'],
+                    ['title' => 'Teachers', 'href' => '/teachers', 'icon' => 'UserCheck'],
                     ['title' => 'Sections', 'href' => '/sections', 'icon' => 'LayoutList'],
                     ['title' => 'Enrollment', 'href' => '/enrollment', 'icon' => 'ClipboardList'],
                 ],

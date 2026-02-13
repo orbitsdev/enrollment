@@ -72,12 +72,14 @@ class CurriculumController extends Controller
             'track_id' => 'required|exists:tracks,id',
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:strands,code',
+            'course' => 'nullable|string|max:255',
         ]);
 
         Strand::create([
             'track_id' => $request->track_id,
             'name' => $request->name,
             'code' => $request->code,
+            'course' => $request->course,
         ]);
 
         return redirect()->back()->with('success', 'Strand created successfully.');
@@ -91,11 +93,13 @@ class CurriculumController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:strands,code,' . $strand->id,
+            'course' => 'nullable|string|max:255',
         ]);
 
         $strand->update([
             'name' => $request->name,
             'code' => $request->code,
+            'course' => $request->course,
         ]);
 
         return redirect()->back()->with('success', 'Strand updated successfully.');

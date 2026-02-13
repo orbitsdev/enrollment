@@ -23,6 +23,9 @@ const form = useForm({
     school_name: props.settings.school_name ?? '',
     school_id: props.settings.school_id ?? '',
     school_address: props.settings.school_address ?? '',
+    district: props.settings.district ?? '',
+    division: props.settings.division ?? '',
+    region: props.settings.region ?? '',
     passing_grade: props.settings.passing_grade ?? '75',
     midterm_weight: props.settings.midterm_weight ?? '50',
     finals_weight: props.settings.finals_weight ?? '50',
@@ -87,6 +90,41 @@ function submit() {
                                 placeholder="Enter school address"
                             />
                             <InputError :message="form.errors.school_address" />
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="space-y-2">
+                                <Label for="district">District</Label>
+                                <Input
+                                    id="district"
+                                    v-model="form.district"
+                                    type="text"
+                                    placeholder="e.g. Lake Sebu East"
+                                />
+                                <InputError :message="form.errors.district" />
+                            </div>
+
+                            <div class="space-y-2">
+                                <Label for="division">Division</Label>
+                                <Input
+                                    id="division"
+                                    v-model="form.division"
+                                    type="text"
+                                    placeholder="e.g. South Cotabato"
+                                />
+                                <InputError :message="form.errors.division" />
+                            </div>
+
+                            <div class="space-y-2">
+                                <Label for="region">Region</Label>
+                                <Input
+                                    id="region"
+                                    v-model="form.region"
+                                    type="text"
+                                    placeholder="e.g. Region XII"
+                                />
+                                <InputError :message="form.errors.region" />
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

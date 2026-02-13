@@ -4,8 +4,8 @@ namespace App\Actions\Report;
 
 use App\Models\SchoolSetting;
 use App\Models\Student;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\Response;
+use Spatie\LaravelPdf\Facades\Pdf;
+use Symfony\Component\HttpFoundation\Response;
 
 class GenerateSF10
 {
@@ -27,18 +27,34 @@ class GenerateSF10
 
         $schoolSettings = SchoolSetting::pluck('value', 'key')->toArray();
 
-        $pdf = Pdf::loadView('pdf.sf10', [
+        $filename = 'SF10-' . $student->lrn . '-' . now()->format('Ymd') . '.pdf';
+        $tempPath = storage_path('app/temp/' . $filename);
+
+        if (! is_dir(storage_path('app/temp'))) {
+            mkdir(storage_path('app/temp'), 0755, true);
+        }
+
+        Pdf::view('pdf.sf10', [
             'student' => $student,
             'enrollments' => $student->enrollments,
             'school_name' => $schoolSettings['school_name'] ?? 'School Name',
             'school_address' => $schoolSettings['school_address'] ?? '',
             'school_id' => $schoolSettings['school_id'] ?? '',
-        ]);
+        ])
+            ->withBrowsershot(function (\Spatie\Browsershot\Browsershot $browsershot) {
+                if (file_exists('/usr/bin/google-chrome-stable')) {
+                    $browsershot->setChromePath('/usr/bin/google-chrome-stable');
+                } elseif (file_exists('/usr/bin/chromium-browser')) {
+                    $browsershot->setChromePath('/usr/bin/chromium-browser');
+                }
+                $browsershot->noSandbox();
+            })
+            ->format('legal')
+            ->landscape()
+            ->save($tempPath);
 
-        $pdf->setPaper('legal', 'landscape');
-
-        $filename = 'SF10-' . $student->lrn . '-' . now()->format('Ymd') . '.pdf';
-
-        return $pdf->download($filename);
+        return response()->download($tempPath, $filename, [
+            'Content-Type' => 'application/pdf',
+        ])->deleteFileAfterSend(true);
     }
 }

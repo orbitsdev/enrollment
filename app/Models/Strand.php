@@ -15,6 +15,7 @@ class Strand extends Model
         'track_id',
         'name',
         'code',
+        'course',
         'is_active',
         'sort_order',
     ];

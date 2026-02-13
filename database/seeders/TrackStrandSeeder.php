@@ -29,9 +29,9 @@ class TrackStrandSeeder extends Seeder
                 'code' => 'TVL',
                 'sort_order' => 2,
                 'strands' => [
-                    ['name' => 'Home Economics', 'code' => 'HE', 'sort_order' => 1],
-                    ['name' => 'Information and Communications Technology', 'code' => 'ICT', 'sort_order' => 2],
-                    ['name' => 'Agri-Fishery Arts', 'code' => 'AFA', 'sort_order' => 3],
+                    ['name' => 'Home Economics', 'code' => 'HE', 'course' => null, 'sort_order' => 1],
+                    ['name' => 'Information and Communications Technology', 'code' => 'ICT', 'course' => 'Computer System Servicing (NC II)', 'sort_order' => 2],
+                    ['name' => 'Agri-Fishery Arts', 'code' => 'AFA', 'course' => null, 'sort_order' => 3],
                 ],
             ],
         ];

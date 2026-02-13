@@ -7,8 +7,12 @@ export interface Student {
     suffix: string | null;
     birthdate: string;
     gender: 'male' | 'female';
+    religion: string | null;
+    learning_modality: string;
     address: string | null;
     contact_number: string | null;
+    father_name: string | null;
+    mother_name: string | null;
     guardian_name: string | null;
     guardian_contact: string | null;
     guardian_relationship: string | null;
@@ -58,6 +62,7 @@ export interface Strand {
     track_id: number;
     name: string;
     code: string;
+    course: string | null;
     is_active: boolean;
     sort_order: number;
     created_at: string;
@@ -135,6 +140,46 @@ export interface Grade {
     enrollment?: Enrollment;
     subject?: Subject;
     encoder?: import('./auth').User;
+}
+
+export interface TeacherProfile {
+    id: number;
+    user_id: number;
+    employee_id: string | null;
+    position_title: string | null;
+    appointment_status: string | null;
+    sex: string | null;
+    birthdate: string | null;
+    contact_number: string | null;
+    address: string | null;
+    highest_degree: string | null;
+    degree_course: string | null;
+    degree_major: string | null;
+    school_graduated: string | null;
+    year_graduated: number | null;
+    prc_license_number: string | null;
+    prc_validity: string | null;
+    eligibility: string | null;
+    specialization: string | null;
+    date_hired: string | null;
+    teaching_hours_per_week: number | null;
+    created_at: string;
+    updated_at: string;
+    user?: import('./auth').User;
+    trainings?: TeacherTraining[];
+}
+
+export interface TeacherTraining {
+    id: number;
+    teacher_profile_id: number;
+    title: string;
+    type: string | null;
+    sponsor: string | null;
+    date_from: string | null;
+    date_to: string | null;
+    hours: number | null;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface SchoolSetting {

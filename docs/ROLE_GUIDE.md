@@ -38,6 +38,7 @@ All test accounts use the password: **`password`**
   - Curriculum (Tracks) `/curriculum/tracks`
   - Subjects `/curriculum/subjects`
   - Students `/students`
+  - Teachers `/teachers` (SF7 profiles, trainings)
   - Sections `/sections`
   - Enrollment `/enrollment`
 - **Grades** `/grades`
@@ -54,6 +55,8 @@ All test accounts use the password: **`password`**
 Same as Admin **except**:
 - No access to Users management
 - No access to School Settings
+- No access to School Years
+- No access to Grade unlock
 
 ### Teacher
 

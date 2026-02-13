@@ -5,7 +5,9 @@ namespace App\Traits\ModelRelations;
 use App\Models\AuditLog;
 use App\Models\Grade;
 use App\Models\Section;
+use App\Models\TeacherProfile;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 trait UserRelations
 {
@@ -22,5 +24,10 @@ trait UserRelations
     public function auditLogs(): HasMany
     {
         return $this->hasMany(AuditLog::class);
+    }
+
+    public function teacherProfile(): HasOne
+    {
+        return $this->hasOne(TeacherProfile::class);
     }
 }

@@ -23,7 +23,16 @@
       "WebSearch",
       "WebFetch(domain:unsplash.com)",
       "WebFetch(domain:pixabay.com)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(php:*)",
+      "Bash(profile)",
+      "Bash(training \")",
+      "Bash(grep:*)",
+      "Bash(composer remove:*)",
+      "Bash(composer dump-autoload:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(where:*)"
     ]
   }
 }

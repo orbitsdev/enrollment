@@ -15,6 +15,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentPortalController;
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -48,6 +49,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 // Admin & Registrar
 Route::middleware(['auth', 'role:admin|registrar'])->group(function () {
+    // Teachers
+    Route::get('teachers', [TeacherController::class, 'index'])->name('teachers.index');
+    Route::get('teachers/{teacher}', [TeacherController::class, 'show'])->name('teachers.show');
+    Route::get('teachers/{teacher}/edit', [TeacherController::class, 'edit'])->name('teachers.edit');
+    Route::put('teachers/{teacher}', [TeacherController::class, 'update'])->name('teachers.update');
+    Route::post('teachers/{teacher}/trainings', [TeacherController::class, 'storeTraining'])->name('teachers.trainings.store');
+    Route::delete('teachers/{teacher}/trainings/{training}', [TeacherController::class, 'destroyTraining'])->name('teachers.trainings.destroy');
+
     // Curriculum
     Route::get('curriculum', [CurriculumController::class, 'index'])->name('curriculum.index');
     Route::post('curriculum/tracks', [CurriculumController::class, 'storeTrack'])->name('curriculum.tracks.store');

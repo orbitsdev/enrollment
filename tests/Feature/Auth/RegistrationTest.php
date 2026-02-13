@@ -1,19 +1,10 @@
 <?php
 
-test('registration screen can be rendered', function () {
-    $response = $this->get(route('register'));
+// Registration is disabled in this project (admin creates accounts).
+// Fortify's Features::registration() is commented out in config/fortify.php.
 
-    $response->assertOk();
-});
+test('registration route is not available', function () {
+    $response = $this->get('/register');
 
-test('new users can register', function () {
-    $response = $this->post(route('register.store'), [
-        'name' => 'Test User',
-        'email' => 'test@example.com',
-        'password' => 'password',
-        'password_confirmation' => 'password',
-    ]);
-
-    $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $response->assertNotFound();
 });
