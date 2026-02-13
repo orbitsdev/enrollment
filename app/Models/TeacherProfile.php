@@ -34,9 +34,9 @@ class TeacherProfile extends Model
     protected function casts(): array
     {
         return [
-            'birthdate' => 'date',
-            'prc_validity' => 'date',
-            'date_hired' => 'date',
+            'birthdate' => 'date:Y-m-d',
+            'prc_validity' => 'date:Y-m-d',
+            'date_hired' => 'date:Y-m-d',
             'year_graduated' => 'integer',
             'teaching_hours_per_week' => 'integer',
         ];

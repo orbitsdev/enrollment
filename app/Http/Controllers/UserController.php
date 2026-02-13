@@ -46,6 +46,13 @@ class UserController extends Controller
                 'value' => $role->value,
                 'label' => $role->label(),
             ]),
+            'roleCounts' => fn () => User::query()
+                ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+                ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                ->where('model_has_roles.model_type', User::class)
+                ->selectRaw('roles.name as role, count(*) as count')
+                ->groupBy('roles.name')
+                ->pluck('count', 'role'),
         ]);
     }
 

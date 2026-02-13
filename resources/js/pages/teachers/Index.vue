@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { Eye } from 'lucide-vue-next';
+import { Eye, Pencil } from 'lucide-vue-next';
 import { ref } from 'vue';
 import DataTable from '@/components/App/DataTable.vue';
 import PageHeader from '@/components/App/PageHeader.vue';
 import SearchInput from '@/components/App/SearchInput.vue';
-import StatusBadge from '@/components/App/StatusBadge.vue';
+import TeacherFormDialog from '@/components/App/TeacherFormDialog.vue';
+import TeacherShowDialog from '@/components/App/TeacherShowDialog.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TableCell } from '@/components/ui/table';
@@ -34,10 +35,28 @@ const columns = [
     { key: 'position', label: 'Position', class: 'w-[180px]' },
     { key: 'specialization', label: 'Specialization', class: 'w-[180px]' },
     { key: 'status', label: 'Profile', class: 'w-[100px]' },
-    { key: 'actions', label: '', class: 'w-[80px] text-right' },
+    { key: 'actions', label: '', class: 'w-[120px] text-right' },
 ];
 
 const search = ref(props.filters.search ?? '');
+
+// Show dialog state
+const showDialogOpen = ref(false);
+const selectedTeacher = ref<TeacherUser | null>(null);
+
+function openShowDialog(teacher: TeacherUser) {
+    selectedTeacher.value = teacher;
+    showDialogOpen.value = true;
+}
+
+// Edit dialog state
+const editDialogOpen = ref(false);
+const editingTeacher = ref<TeacherUser | null>(null);
+
+function openEditDialog(teacher: TeacherUser) {
+    editingTeacher.value = teacher;
+    editDialogOpen.value = true;
+}
 </script>
 
 <template>
@@ -79,11 +98,14 @@ const search = ref(props.filters.search ?? '');
                         </Badge>
                     </TableCell>
                     <TableCell class="text-right">
-                        <Button variant="ghost" size="sm" as-child>
-                            <Link :href="`/teachers/${row.id}`">
+                        <div class="flex items-center justify-end gap-1">
+                            <Button variant="ghost" size="icon-sm" @click="openShowDialog(row)">
                                 <Eye class="size-4" />
-                            </Link>
-                        </Button>
+                            </Button>
+                            <Button variant="ghost" size="icon-sm" @click="openEditDialog(row)">
+                                <Pencil class="size-4" />
+                            </Button>
+                        </div>
                     </TableCell>
                 </template>
             </DataTable>
@@ -118,5 +140,15 @@ const search = ref(props.filters.search ?? '');
                 </div>
             </div>
         </div>
+
+        <TeacherShowDialog
+            v-model:open="showDialogOpen"
+            :teacher="selectedTeacher"
+        />
+
+        <TeacherFormDialog
+            v-model:open="editDialogOpen"
+            :teacher="editingTeacher"
+        />
     </AppLayout>
 </template>

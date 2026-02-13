@@ -29,6 +29,7 @@ const props = defineProps<{
     users: PaginatedData<UserWithRole>;
     filters: { search: string; role: string };
     roles: Array<{ value: string; label: string }>;
+    roleCounts: Record<string, number>;
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -127,6 +128,12 @@ function executeToggle() {
                     </Button>
                 </template>
             </PageHeader>
+
+            <div class="flex items-center gap-3">
+                <Badge v-for="(count, role) in roleCounts" :key="role" variant="secondary">
+                    {{ role }}: {{ count }}
+                </Badge>
+            </div>
 
             <div class="flex items-center gap-4">
                 <SearchInput

@@ -7,7 +7,12 @@ import PageHeader from '@/components/App/PageHeader.vue';
 import InputError from '@/components/InputError.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -24,6 +29,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import {
     Table,
     TableBody,
@@ -32,6 +38,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from '@/components/ui/tabs';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, TeacherProfile, TeacherTraining } from '@/types';
 import type { User } from '@/types/auth';
@@ -91,10 +103,6 @@ function executeDelete() {
         },
     });
 }
-
-function infoItem(label: string, value: string | number | null | undefined) {
-    return { label, value: value ?? '---' };
-}
 </script>
 
 <template>
@@ -104,9 +112,12 @@ function infoItem(label: string, value: string | number | null | undefined) {
         <div class="flex h-full flex-1 flex-col gap-4 p-4">
             <PageHeader
                 :title="teacher.name"
-                description="Teacher profile and training records."
+                :description="`Employee ID: ${profile?.employee_id ?? 'Not set'}`"
             >
                 <template #actions>
+                    <Badge v-if="profile?.appointment_status" variant="outline">
+                        {{ profile.appointment_status }}
+                    </Badge>
                     <Button as-child>
                         <Link :href="`/teachers/${teacher.id}/edit`">
                             <Pencil class="size-4" />
@@ -116,107 +127,239 @@ function infoItem(label: string, value: string | number | null | undefined) {
                 </template>
             </PageHeader>
 
-            <!-- Personal & Employment Info -->
-            <div class="grid gap-4 md:grid-cols-2">
-                <Card>
-                    <CardContent class="space-y-3 pt-6">
-                        <h3 class="text-lg font-semibold">Personal Information</h3>
-                        <dl class="grid gap-2 text-sm">
-                            <div v-for="item in [
-                                infoItem('Name', teacher.name),
-                                infoItem('Email', teacher.email),
-                                infoItem('Employee ID', profile?.employee_id),
-                                infoItem('Sex', profile?.sex),
-                                infoItem('Birthdate', profile?.birthdate),
-                                infoItem('Contact', profile?.contact_number),
-                                infoItem('Address', profile?.address),
-                            ]" :key="item.label">
-                                <dt class="text-muted-foreground">{{ item.label }}</dt>
-                                <dd class="font-medium">{{ item.value }}</dd>
-                            </div>
-                        </dl>
-                    </CardContent>
-                </Card>
+            <!-- Tabs -->
+            <Tabs default-value="personal" class="w-full">
+                <TabsList>
+                    <TabsTrigger value="personal">Personal Info</TabsTrigger>
+                    <TabsTrigger value="employment">Employment</TabsTrigger>
+                    <TabsTrigger value="trainings">Trainings</TabsTrigger>
+                </TabsList>
 
-                <Card>
-                    <CardContent class="space-y-3 pt-6">
-                        <h3 class="text-lg font-semibold">Employment & Qualifications</h3>
-                        <dl class="grid gap-2 text-sm">
-                            <div v-for="item in [
-                                infoItem('Position', profile?.position_title),
-                                infoItem('Appointment', profile?.appointment_status),
-                                infoItem('Specialization', profile?.specialization),
-                                infoItem('Date Hired', profile?.date_hired),
-                                infoItem('Teaching Hours/Week', profile?.teaching_hours_per_week),
-                                infoItem('Highest Degree', profile?.highest_degree),
-                                infoItem('Course', profile?.degree_course),
-                                infoItem('Major', profile?.degree_major),
-                                infoItem('School Graduated', profile?.school_graduated),
-                                infoItem('Year Graduated', profile?.year_graduated),
-                                infoItem('PRC License', profile?.prc_license_number),
-                                infoItem('PRC Validity', profile?.prc_validity),
-                                infoItem('Eligibility', profile?.eligibility),
-                            ]" :key="item.label">
-                                <dt class="text-muted-foreground">{{ item.label }}</dt>
-                                <dd class="font-medium">{{ item.value }}</dd>
-                            </div>
-                        </dl>
-                    </CardContent>
-                </Card>
-            </div>
+                <!-- Personal Info Tab -->
+                <TabsContent value="personal" class="mt-4">
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Personal Details</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <dl class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <dt class="text-sm font-medium text-muted-foreground">Name</dt>
+                                        <dd class="text-sm">{{ teacher.name }}</dd>
+                                    </div>
+                                    <Separator />
+                                    <div class="flex justify-between">
+                                        <dt class="text-sm font-medium text-muted-foreground">Email</dt>
+                                        <dd class="text-sm">{{ teacher.email }}</dd>
+                                    </div>
+                                    <Separator />
+                                    <div class="flex justify-between">
+                                        <dt class="text-sm font-medium text-muted-foreground">Employee ID</dt>
+                                        <dd class="text-sm font-mono">{{ profile?.employee_id ?? '--' }}</dd>
+                                    </div>
+                                    <Separator />
+                                    <div class="flex justify-between">
+                                        <dt class="text-sm font-medium text-muted-foreground">Sex</dt>
+                                        <dd class="text-sm capitalize">{{ profile?.sex ?? '--' }}</dd>
+                                    </div>
+                                    <Separator />
+                                    <div class="flex justify-between">
+                                        <dt class="text-sm font-medium text-muted-foreground">Birthdate</dt>
+                                        <dd class="text-sm">{{ profile?.birthdate ?? '--' }}</dd>
+                                    </div>
+                                </dl>
+                            </CardContent>
+                        </Card>
 
-            <!-- Trainings -->
-            <Card>
-                <CardContent class="pt-6">
-                    <div class="mb-4 flex items-center justify-between">
-                        <h3 class="text-lg font-semibold">Trainings & Seminars</h3>
-                        <Button size="sm" @click="showTrainingDialog = true">
-                            <Plus class="size-4" />
-                            Add Training
-                        </Button>
+                        <div class="space-y-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Contact Information</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <dl class="space-y-3">
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm font-medium text-muted-foreground">Contact Number</dt>
+                                            <dd class="text-sm">{{ profile?.contact_number ?? '--' }}</dd>
+                                        </div>
+                                        <Separator />
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm font-medium text-muted-foreground">Address</dt>
+                                            <dd class="text-sm text-right max-w-[200px]">{{ profile?.address ?? '--' }}</dd>
+                                        </div>
+                                    </dl>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
+                </TabsContent>
 
-                    <Table v-if="trainings.length > 0">
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Title</TableHead>
-                                <TableHead class="w-[100px]">Type</TableHead>
-                                <TableHead>Sponsor</TableHead>
-                                <TableHead class="w-[120px]">Date</TableHead>
-                                <TableHead class="w-[80px]">Hours</TableHead>
-                                <TableHead class="w-[60px]" />
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            <TableRow v-for="t in trainings" :key="t.id">
-                                <TableCell class="font-medium">{{ t.title }}</TableCell>
-                                <TableCell>
-                                    <Badge v-if="t.type" variant="outline">{{ t.type }}</Badge>
-                                </TableCell>
-                                <TableCell>{{ t.sponsor || '---' }}</TableCell>
-                                <TableCell>
-                                    {{ t.date_from || '---' }}
-                                    <span v-if="t.date_to"> - {{ t.date_to }}</span>
-                                </TableCell>
-                                <TableCell>{{ t.hours ?? '---' }}</TableCell>
-                                <TableCell>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        @click="promptDeleteTraining(t)"
-                                    >
-                                        <Trash2 class="size-4 text-destructive" />
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
+                <!-- Employment Tab -->
+                <TabsContent value="employment" class="mt-4">
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Employment Details</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <dl class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <dt class="text-sm font-medium text-muted-foreground">Position</dt>
+                                        <dd class="text-sm">{{ profile?.position_title ?? '--' }}</dd>
+                                    </div>
+                                    <Separator />
+                                    <div class="flex justify-between">
+                                        <dt class="text-sm font-medium text-muted-foreground">Appointment Status</dt>
+                                        <dd class="text-sm">
+                                            <Badge v-if="profile?.appointment_status" variant="outline">
+                                                {{ profile.appointment_status }}
+                                            </Badge>
+                                            <span v-else>--</span>
+                                        </dd>
+                                    </div>
+                                    <Separator />
+                                    <div class="flex justify-between">
+                                        <dt class="text-sm font-medium text-muted-foreground">Specialization</dt>
+                                        <dd class="text-sm">{{ profile?.specialization ?? '--' }}</dd>
+                                    </div>
+                                    <Separator />
+                                    <div class="flex justify-between">
+                                        <dt class="text-sm font-medium text-muted-foreground">Date Hired</dt>
+                                        <dd class="text-sm">{{ profile?.date_hired ?? '--' }}</dd>
+                                    </div>
+                                    <Separator />
+                                    <div class="flex justify-between">
+                                        <dt class="text-sm font-medium text-muted-foreground">Teaching Hours/Week</dt>
+                                        <dd class="text-sm">{{ profile?.teaching_hours_per_week ?? '--' }}</dd>
+                                    </div>
+                                </dl>
+                            </CardContent>
+                        </Card>
 
-                    <p v-else class="text-sm text-muted-foreground">
-                        No training records yet.
-                    </p>
-                </CardContent>
-            </Card>
+                        <div class="space-y-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Education</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <dl class="space-y-3">
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm font-medium text-muted-foreground">Highest Degree</dt>
+                                            <dd class="text-sm">{{ profile?.highest_degree ?? '--' }}</dd>
+                                        </div>
+                                        <Separator />
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm font-medium text-muted-foreground">Course</dt>
+                                            <dd class="text-sm">{{ profile?.degree_course ?? '--' }}</dd>
+                                        </div>
+                                        <Separator />
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm font-medium text-muted-foreground">Major</dt>
+                                            <dd class="text-sm">{{ profile?.degree_major ?? '--' }}</dd>
+                                        </div>
+                                        <Separator />
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm font-medium text-muted-foreground">School Graduated</dt>
+                                            <dd class="text-sm text-right max-w-[200px]">{{ profile?.school_graduated ?? '--' }}</dd>
+                                        </div>
+                                        <Separator />
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm font-medium text-muted-foreground">Year Graduated</dt>
+                                            <dd class="text-sm">{{ profile?.year_graduated ?? '--' }}</dd>
+                                        </div>
+                                    </dl>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Credentials</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <dl class="space-y-3">
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm font-medium text-muted-foreground">PRC License</dt>
+                                            <dd class="text-sm font-mono">{{ profile?.prc_license_number ?? '--' }}</dd>
+                                        </div>
+                                        <Separator />
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm font-medium text-muted-foreground">PRC Validity</dt>
+                                            <dd class="text-sm">{{ profile?.prc_validity ?? '--' }}</dd>
+                                        </div>
+                                        <Separator />
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm font-medium text-muted-foreground">Eligibility</dt>
+                                            <dd class="text-sm">{{ profile?.eligibility ?? '--' }}</dd>
+                                        </div>
+                                    </dl>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+                </TabsContent>
+
+                <!-- Trainings Tab -->
+                <TabsContent value="trainings" class="mt-4">
+                    <Card>
+                        <CardHeader class="flex flex-row items-center justify-between space-y-0">
+                            <CardTitle>Trainings & Seminars</CardTitle>
+                            <Button size="sm" @click="showTrainingDialog = true">
+                                <Plus class="size-4" />
+                                Add Training
+                            </Button>
+                        </CardHeader>
+                        <CardContent>
+                            <div class="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Title</TableHead>
+                                            <TableHead class="w-[100px]">Type</TableHead>
+                                            <TableHead>Sponsor</TableHead>
+                                            <TableHead class="w-[120px]">Date</TableHead>
+                                            <TableHead class="w-[80px]">Hours</TableHead>
+                                            <TableHead class="w-[60px]" />
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        <template v-if="trainings.length > 0">
+                                            <TableRow v-for="t in trainings" :key="t.id">
+                                                <TableCell class="font-medium">{{ t.title }}</TableCell>
+                                                <TableCell>
+                                                    <Badge v-if="t.type" variant="outline">{{ t.type }}</Badge>
+                                                </TableCell>
+                                                <TableCell>{{ t.sponsor || '--' }}</TableCell>
+                                                <TableCell>
+                                                    {{ t.date_from || '--' }}
+                                                    <span v-if="t.date_to"> - {{ t.date_to }}</span>
+                                                </TableCell>
+                                                <TableCell>{{ t.hours ?? '--' }}</TableCell>
+                                                <TableCell>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        @click="promptDeleteTraining(t)"
+                                                    >
+                                                        <Trash2 class="size-4 text-destructive" />
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        </template>
+                                        <template v-else>
+                                            <TableRow>
+                                                <TableCell :colspan="6" class="h-24 text-center text-muted-foreground">
+                                                    No training records yet.
+                                                </TableCell>
+                                            </TableRow>
+                                        </template>
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
         </div>
 
         <!-- Add Training Dialog -->

@@ -20,8 +20,8 @@ class TeacherTraining extends Model
     protected function casts(): array
     {
         return [
-            'date_from' => 'date',
-            'date_to' => 'date',
+            'date_from' => 'date:Y-m-d',
+            'date_to' => 'date:Y-m-d',
             'hours' => 'decimal:1',
         ];
     }

@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { Head, Link, WhenVisible } from '@inertiajs/vue3';
-import { Download, Pencil, Printer } from 'lucide-vue-next';
+import { ChevronDown, Download, FileSpreadsheet, Pencil } from 'lucide-vue-next';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import CapacityBar from '@/components/App/CapacityBar.vue';
 import PageHeader from '@/components/App/PageHeader.vue';
 import StatusBadge from '@/components/App/StatusBadge.vue';
@@ -53,18 +59,29 @@ const breadcrumbs: BreadcrumbItem[] = [
                 description="Section roster and details."
             >
                 <template #actions>
-                    <Button variant="outline" as-child>
-                        <a :href="`/sections/${section.id}/export/pdf`" target="_blank">
-                            <Printer class="size-4" />
-                            PDF
-                        </a>
-                    </Button>
-                    <Button variant="outline" as-child>
-                        <a :href="`/sections/${section.id}/export/excel`" target="_blank">
-                            <Download class="size-4" />
-                            Excel
-                        </a>
-                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger as-child>
+                            <Button variant="outline">
+                                <Download class="size-4" />
+                                Export
+                                <ChevronDown class="size-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem as-child>
+                                <a :href="`/reports/generate/sf1/${section.id}`" target="_blank">
+                                    <FileSpreadsheet class="size-4" />
+                                    SF1 Register
+                                </a>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem as-child>
+                                <a :href="`/reports/export/class-list/${section.id}`" target="_blank">
+                                    <FileSpreadsheet class="size-4" />
+                                    Class List
+                                </a>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                     <Button as-child>
                         <Link :href="`/sections/${section.id}/edit`">
                             <Pencil class="size-4" />

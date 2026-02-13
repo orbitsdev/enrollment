@@ -218,7 +218,7 @@ function onGradeLevelChange(value: string) {
                                     <Button variant="outline" size="sm" as-child>
                                         <Link :href="`/sections/${section.id}`" prefetch>
                                             <Eye class="size-4" />
-                                            View Roster
+                                            View
                                         </Link>
                                     </Button>
                                     <Button
@@ -253,5 +253,6 @@ function onGradeLevelChange(value: string) {
             :semesters="semesters"
             :teachers="teachers"
         />
+
     </AppLayout>
 </template>

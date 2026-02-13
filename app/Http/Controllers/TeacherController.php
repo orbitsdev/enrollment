@@ -17,7 +17,7 @@ class TeacherController extends Controller
      */
     public function index(): Response
     {
-        $query = User::role('teacher')->with('teacherProfile');
+        $query = User::role('teacher')->with('teacherProfile.trainings');
 
         if ($search = request('search')) {
             $query->where(function ($q) use ($search) {
@@ -97,7 +97,7 @@ class TeacherController extends Controller
             $validated,
         );
 
-        return redirect()->route('teachers.show', $teacher)->with('success', 'Teacher profile updated successfully.');
+        return redirect()->back()->with('success', 'Teacher profile updated successfully.');
     }
 
     /**
