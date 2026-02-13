@@ -7,14 +7,6 @@ import { onMounted } from 'vue';
 
 gsap.registerPlugin(ScrollTrigger);
 
-withDefaults(
-    defineProps<{
-        canRegister: boolean;
-    }>(),
-    {
-        canRegister: true,
-    },
-);
 
 const features = [
     {
@@ -145,21 +137,13 @@ onMounted(() => {
                     >
                         Dashboard
                     </Link>
-                    <template v-else>
-                        <Link
-                            href="/login"
-                            class="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-                        >
-                            Log in
-                        </Link>
-                        <Link
-                            v-if="canRegister"
-                            href="/register"
-                            class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
-                        >
-                            Register
-                        </Link>
-                    </template>
+                    <Link
+                        v-else
+                        href="/login"
+                        class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                    >
+                        Log in
+                    </Link>
                 </nav>
             </div>
         </header>
@@ -203,21 +187,13 @@ onMounted(() => {
                         >
                             Go to Dashboard
                         </Link>
-                        <template v-else>
-                            <Link
-                                href="/login"
-                                class="inline-flex w-full items-center justify-center rounded-md bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 sm:w-auto"
-                            >
-                                Log in to Get Started
-                            </Link>
-                            <Link
-                                v-if="canRegister"
-                                href="/register"
-                                class="inline-flex w-full items-center justify-center rounded-md border border-input bg-background/80 px-8 py-3 text-sm font-medium shadow-sm backdrop-blur-sm transition-colors hover:bg-accent hover:text-accent-foreground sm:w-auto"
-                            >
-                                Create an Account
-                            </Link>
-                        </template>
+                        <Link
+                            v-else
+                            href="/login"
+                            class="inline-flex w-full items-center justify-center rounded-md bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 sm:w-auto"
+                        >
+                            Log in to Get Started
+                        </Link>
                     </div>
                 </div>
             </div>
