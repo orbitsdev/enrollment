@@ -35,6 +35,10 @@ Route::get('user-manual', function () {
     return Inertia::render('UserManual');
 })->name('user-manual');
 
+Route::get('capstone-guide', function () {
+    return Inertia::render('CapstoneGuide');
+})->name('capstone-guide');
+
 // Admin only
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggle-active');
